@@ -1,0 +1,82 @@
+[
+  {
+    "data": null, 
+    "columns": {
+      "stage_name": "", 
+      "stage_time_left": "Test", 
+      "stage_time_elapsed": ""
+    }
+  }, 
+  {
+    "data": null, 
+    "columns": {
+      "stage_name": "1", 
+      "stage_time_left": "", 
+      "stage_time_elapsed": ""
+    }
+  }, 
+  {
+    "data": null, 
+    "columns": {
+      "stage_name": "", 
+      "stage_time_left": "Blah", 
+      "stage_time_elapsed": ""
+    }
+  }, 
+  {
+    "data": null, 
+    "columns": {
+      "stage_name": "", 
+      "stage_time_left": "", 
+      "stage_time_elapsed": ""
+    }
+  }, 
+  {
+    "data": null, 
+    "columns": {
+      "stage_name": "", 
+      "stage_time_left": "", 
+      "stage_time_elapsed": ""
+    }
+  }, 
+  {
+    "data": null, 
+    "columns": {
+      "stage_name": "", 
+      "stage_time_left": "kkkk", 
+      "stage_time_elapsed": ""
+    }
+  }, 
+  {
+    "data": null, 
+    "columns": {
+      "stage_name": "", 
+      "stage_time_left": "", 
+      "stage_time_elapsed": ""
+    }
+  }, 
+  {
+    "data": null, 
+    "columns": {
+      "stage_name": "", 
+      "stage_time_left": "", 
+      "stage_time_elapsed": ""
+    }
+  }, 
+  {
+    "data": null, 
+    "columns": {
+      "stage_name": "", 
+      "stage_time_left": "", 
+      "stage_time_elapsed": ""
+    }
+  }, 
+  {
+    "data": null, 
+    "columns": {
+      "stage_name": "", 
+      "stage_time_left": "", 
+      "stage_time_elapsed": ""
+    }
+  }
+]
