@@ -396,7 +396,7 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QComboBox" name="comboTimerStartCond">
+              <widget class="QComboBox" name="cbTimerStartCond">
                <property name="currentIndex">
                 <number>0</number>
                </property>
@@ -407,12 +407,17 @@
                </item>
                <item>
                 <property name="text">
-                 <string>Temperatura maior que</string>
+                 <string>No inicio do estagio</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>Temperatura menor que</string>
+                 <string>Temperatura maior/igual a</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Temperatura menor/igual a</string>
                 </property>
                </item>
               </widget>
@@ -420,12 +425,12 @@
              <item row="1" column="0">
               <widget class="QLabel" name="lbtemp">
                <property name="text">
-                <string>Temperatura de inicio</string>
+                <string>Temperatura da cond.</string>
                </property>
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QDoubleSpinBox" name="StartTempField"/>
+              <widget class="QDoubleSpinBox" name="timerTempField"/>
              </item>
              <item row="2" column="0">
               <widget class="QLabel" name="lbtime">
@@ -435,7 +440,11 @@
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QTimeEdit" name="TimerTimeField"/>
+              <widget class="QTimeEdit" name="timerTimeField">
+               <property name="displayFormat">
+                <string>HH:MM:ss</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
