@@ -2,7 +2,7 @@
 from mainwindow import *
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from pid import PIDControl, PumpControl
+from pid import PIDControl, PumpControl, TimerControl
 from model import DictTableModel
 import json
 import io
@@ -24,7 +24,6 @@ class TableControlStages(object):
         
     def bt_add_clicked(self):
         self.tbmodel_Stages.add()
-        print self.tbmodel_Stages.rows
     
     def bt_remove_clicked(self):
         selected = self.ui.tableView_Stages.selectedIndexes()
@@ -57,13 +56,17 @@ class TableControlStages(object):
     def set_PumpControl(self, pump_control):
         self.pump_control = pump_control
 
+    def set_TimerControl(self, timer_control):
+        self.timer_control = timer_control
+
     def selectionChanged(self, selected, deselected):
         selected = selected.indexes()
         selected = selected[0].row() if len(selected) >= 1 else -1
         deselected = deselected.indexes()
         deselected = deselected[0].row() if len(deselected) >= 1 else -1
         self.p_control.set_row(selected)
-        self.pump_control.set_row(selected)        
+        self.pump_control.set_row(selected)
+        self.timer_control.set_row(selected)        
         
 class TableControlIngridients(object):
     def __init__(self, ui):
@@ -197,6 +200,7 @@ if __name__ == "__main__":
     tableControlStages = TableControlStages(ui, tbmodel_Stages)
     tableControlStages.set_PIDControl(pidControl)
     tableControlStages.set_PumpControl(pumpControl)
+    tableControlStages.set_TimerControl(TimerControl(ui, tbmodel_Stages))
     tableControlIngridients = TableControlIngridients(ui)
     processController = ProcessController(ui, tbmodel_Stages)
     MainWindow.show()

@@ -1,4 +1,5 @@
-
+# -*- coding: utf-8 -*-
+from PyQt4.QtCore import QTime
 
 
 class PIDControl(object):
@@ -120,10 +121,49 @@ class PumpControl(object):
         self.ui.chkPumpEnabled.setChecked(self.enabled)
         self.ui.sliderPumpPower.setValue(self.power)
 
-class ProcessTimer(object):
-    def __init__(self, ui):
-        pass
-    def set_model(self):
-        pass
+class TimerControl(object):
+    def __init__(self, ui, model):
+        self.ui = ui
+        self.model = model
+        ui.cbTimerStartCond.currentIndexChanged.connect(self.indexChanged)
+        ui.timerTempField.valueChanged.connect(self.timerTempChanged)
+        ui.timerTimeField.timeChanged.connect(self.timerTimeChanged)
+    
+    def set_row(self, row):
+        self.row = row
+        if row != -1:
+            self.fromDict(self.model.row_data(row).get(u'ProcessTimer'))
+
+    def fromDict(self, data):
+        if data == None:
+            data = {}
+        startCond = data.get(u'startCond')
+        self.ui.cbTimerStartCond.setCurrentIndex(startCond if startCond != None else 0)
+        temp = data.get(u'temp')
+        self.ui.timerTempField.setValue(temp if temp != None else 0)
+        time = data.get(u'time')
+        self.ui.timerTimeField.setTime(time if time != None else QTime(0,0))
+
+
+
+    def indexChanged(self, index):
+        self.valueChanged('startCond', index)
+
+    def timerTempChanged(self, value):
+        self.valueChanged('temp', value)
+
+    def timerTimeChanged(self, value):
+        self.valueChanged('time', value)
+
+    def valueChanged(self, pr_name, pr_value):
+        if self.row != -1:
+            row_data = self.model.row_data(self.row).get(u'ProcessTimer')
+            if row_data == None:
+                row_data = {}
+                self.model.row_data(self.row)[u'ProcessTimer'] = row_data
+            row_data[pr_name] = pr_value
+            
+
+    
 
 
