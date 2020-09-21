@@ -125,6 +125,7 @@ class TimerControl(object):
     def __init__(self, ui, model):
         self.ui = ui
         self.model = model
+        self.row = -1
         ui.cbTimerStartCond.currentIndexChanged.connect(self.indexChanged)
         ui.timerTempField.valueChanged.connect(self.timerTempChanged)
         ui.timerTimeField.timeChanged.connect(self.timerTimeChanged)
@@ -142,7 +143,9 @@ class TimerControl(object):
         temp = data.get(u'temp')
         self.ui.timerTempField.setValue(temp if temp != None else 0)
         time = data.get(u'time')
-        self.ui.timerTimeField.setTime(time if time != None else QTime(0,0))
+        time = time if time != None else 0
+        time = QTime(0,0,0).addSecs(time)
+        self.ui.timerTimeField.setTime(time)
 
 
 
@@ -153,7 +156,8 @@ class TimerControl(object):
         self.valueChanged('temp', value)
 
     def timerTimeChanged(self, value):
-        self.valueChanged('time', value)
+        #convert time to seconds to save on the structure
+        self.valueChanged('time', QTime(0,0,0).secsTo(value))
 
     def valueChanged(self, pr_name, pr_value):
         if self.row != -1:

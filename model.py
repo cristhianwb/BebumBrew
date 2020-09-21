@@ -20,7 +20,7 @@ class DictTableModel(QAbstractTableModel):
         row = {}
         for l in self.fields:
             row[l] = u''
-        return {u'columns':row, u'data': {u'PID': {}, u'Pump': {}} }
+        return {u'columns':row, u'data': {u'PID': {}, u'Pump': {}, u'ProcessTimer': {}} }
     
     def columnCount(self, parent):
         return len(self.fields)
@@ -78,5 +78,8 @@ class DictTableModel(QAbstractTableModel):
         self.beginResetModel()
         self.rows = data
         self.endResetModel()
+
+    def count(self):
+        return len(self.rows)
 
 

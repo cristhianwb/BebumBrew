@@ -88,6 +88,7 @@ class TableControlIngridients(object):
         rows = selected[-1].row() - first_row + 1
         self.tbmodel_Ingridients.removeRows(first_row, rows)
 
+
 class ProcessController(object):
     def __init__(self, ui, model, sampling_interval=1.0):
         self.ui = ui
@@ -98,12 +99,16 @@ class ProcessController(object):
         self.timer.timeout.connect(self.process)
         self.output = 0
         self.pump_power = 0
-        self.temp = 0
+        self.temp = 60
         self.model = model
         self.interval = sampling_interval
         self.pid = PID(0.0, 0.0, 0.0, setpoint=0.0, sample_time=sampling_interval, output_limits=(0, 147), auto_mode=False, proportional_on_measurement=False)
         self.ser = SerialInterface()
         self.status = False
+        self.process_start_time = None
+        self.stage_start_time = None
+        self.timer_started = False
+
 
     #a funcao process ehh chamada a cada metade da taxa de amostragem
     #pois metade do tempo ehh para envio da potencia dos atuadores
@@ -114,27 +119,37 @@ class ProcessController(object):
     # 1/2 segundo recebe, calculo do pid a cada 1 segundo
     def process(self):
         #se o proximo estado do serial a ser processado ehh o de envio, setar variaveis de envio
-        if self.ser.state == ST.SEND:
-            self.ser.heater_power = self.output
-            self.ser.pump_power = self.pump_power
-        self.ser.process()
+        #if self.ser.state == ST.SEND:
+        #    self.ser.heater_power = self.output
+        #    self.ser.pump_power = self.pump_power
+        #self.ser.process()
         #processar pacote apenas quando recebe-lo
-        if self.ser.state == ST.RECEIVE:
-            return
-        if self.ser.temp != -127:
-            self.temp = self.ser.temp
+        #if self.ser.state == ST.RECEIVE:
+        #    return
+        #if self.ser.temp != -127:
+        #    self.temp = self.ser.temp
         
+        self.temp -= 1
+
+        print 'temp:', self.temp
+
+
+        next_stage = self.get_next_stage()
+        state_changed = (next_stage != self.current_stage)
+        
+        if (state_changed):
+            self.current_stage = next_stage
+            self.stage_start_time = QTime().currentTime()
+
         #print self.temp
         #if pid parameters has changed, they should affect here
-        if (self.get_pid_control_changed() or self.get_pump_control_changed()):
-            self.load_pid_params()
+        #if (self.get_pid_control_changed() or self.get_pump_control_changed() or state_changed):
+        #    self.load_pid_params()
         
-        if self.pid_enabled:
-            self.output = self.pid(self.temp)
+        #if self.pid_enabled:
+        #    self.output = self.pid(self.temp)
         
         self.update_outputs_to_ui()
-
-        
 
     def update_outputs_to_ui(self):
         if self.pid_enabled:
@@ -182,10 +197,48 @@ class ProcessController(object):
         time.sleep(2)
         self.load_pid_params()
         self.ser.status = ST.SEND
+        self.start_time = QTime.currentTime()
+        self.stage_start_time = self.start_time
         self.timer.start( (self.interval / 2) * 1000)
+        
     
     def stop(self):
         self.timer.stop()
+
+    def get_next_stage(self):
+        timer_data = self.model.row_data(self.current_stage).get(u'ProcessTimer')
+        if timer_data == None:
+            return self.current_stage
+
+        if not self.timer_started:
+            startCond = timer_data.get(u'startCond')
+            temp = timer_data.get(u'temp')
+        
+            if startCond == 1:
+                self.timer_started = True
+            elif (startCond == 2) and (temp != None):
+                self.timer_started = (self.temp >= temp)
+            elif (startCond == 3) and (temp != None):
+                self.timer_started = (self.temp <= temp)
+            
+            if self.timer_started:
+                self.stage_start_time = QTime().currentTime()
+
+        if self.timer_started:
+            #convert the time in secconds to QTime
+            time = QTime(0,0,0).addSecs(timer_data.get(u'time'))
+            time_elapsed = QTime(0,0,0).addSecs(self.stage_start_time.secsTo(QTime.currentTime()))
+            print time_elapsed.toString()
+            if (time_elapsed) >= time:
+                next_stage = self.current_stage + 1
+                if self.model.count() == next_stage:
+                    self.stop()
+                    return 0
+                print 'in process, next stage', next_stage
+                return next_stage
+
+        return self.current_stage
+
 
 
 if __name__ == "__main__":
