@@ -9,6 +9,7 @@ class DictTableModel(QAbstractTableModel):
         row = self.newRow()
         self.rows = [row]
 
+
     def rowCount(self, parent):
         return len(self.rows)
     
@@ -29,6 +30,7 @@ class DictTableModel(QAbstractTableModel):
         if role == Qt.EditRole:
             self.rows[index.row()][u'columns'][self.fields[index.column()]] = unicode(value.toString().toUtf8(), encoding="UTF-8")
             self.dataChanged.emit(index, index)
+            self.table.resizeColumnsToContents()
             return True
         return False
             
@@ -45,7 +47,7 @@ class DictTableModel(QAbstractTableModel):
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
             return QVariant()
-        if orientation==Qt.Horizontal:
+        if orientation==Qt.Horizontal:        
             return QVariant(self.header[self.fields[section]])
         if orientation==Qt.Vertical:
             return QVariant(section+1)
@@ -70,10 +72,16 @@ class DictTableModel(QAbstractTableModel):
     def row_data(self, row):
         return self.rows[row][u'data']
 
-    def update(self, row, col, val):
-        self.rows[row][u'columns'][self.fields[col]] = val
+    def set_field(self, row, fname, val):
+        col = self.fields.index(fname)
+        self.rows[row][u'columns'][fname] = val
         self.dataChanged.emit(self.index(row,col), self.index(row,col))      
     
+    def set_field_by_column(self, row, col, val):
+        self.rows[row][u'columns'][self.fields[col]] = val
+        self.dataChanged.emit(self.index(row,col), self.index(row,col))      
+
+
     def load(self, data):
         self.beginResetModel()
         self.rows = data

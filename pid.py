@@ -88,6 +88,7 @@ class PumpControl(object):
         self.power = 0.0
         self.ui = ui
         self.model = model
+        self.row = -1
         ui.sliderPumpPower.valueChanged.connect(self.set_power)
         ui.chkPumpEnabled.clicked.connect(self.set_enabled)
 

@@ -13,7 +13,10 @@ import time
 class TableControlStages(object):
     def __init__(self, ui, model):
         self.tbmodel_Stages = model
-        self.tbmodel_Stages.header[u"stage_name"] = u'Estágio'
+        model.table = ui.tableView_Stages
+        self.tbmodel_Stages.header[u'stage_name'] = u'Estágio'
+        self.tbmodel_Stages.header[u'stage_time_elapsed'] = u'Tempo decorrido'
+        self.tbmodel_Stages.header[u'timer_time_remaining'] = u'Tempo restante'
         self.ui = ui
         self.ui.tableView_Stages.setModel(self.tbmodel_Stages)
         self.ui.tableView_Stages.selectionModel().selectionChanged.connect(self.selectionChanged)
@@ -21,7 +24,8 @@ class TableControlStages(object):
         self.ui.btRemove.clicked.connect(self.bt_remove_clicked)
         self.ui.btSave.clicked.connect(self.bt_save_clicked)
         self.ui.btLoad.clicked.connect(self.bt_load_clicked)
-        
+        ui.tableView_Stages.resizeColumnsToContents()
+
     def bt_add_clicked(self):
         self.tbmodel_Stages.add()
     
@@ -66,7 +70,7 @@ class TableControlStages(object):
         deselected = deselected[0].row() if len(deselected) >= 1 else -1
         self.p_control.set_row(selected)
         self.pump_control.set_row(selected)
-        self.timer_control.set_row(selected)        
+        self.timer_control.set_row(selected)
         
 class TableControlIngridients(object):
     def __init__(self, ui):
@@ -228,7 +232,7 @@ class ProcessController(object):
             #convert the time in secconds to QTime
             time = QTime(0,0,0).addSecs(timer_data.get(u'time'))
             time_elapsed = QTime(0,0,0).addSecs(self.stage_start_time.secsTo(QTime.currentTime()))
-            print time_elapsed.toString()
+            self.model.set_field(self.current_stage, u'stage_time_elapsed',time_elapsed.toString())
             if (time_elapsed) >= time:
                 next_stage = self.current_stage + 1
                 if self.model.count() == next_stage:
@@ -247,7 +251,7 @@ if __name__ == "__main__":
     MainWindow = QtGui.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
-    tbmodel_Stages = DictTableModel([u"stage_name"])
+    tbmodel_Stages = DictTableModel([u'stage_name',u'stage_time_elapsed',u'timer_time_remaining'])
     pidControl = PIDControl(ui, tbmodel_Stages)
     pumpControl = PumpControl(ui, tbmodel_Stages)
     tableControlStages = TableControlStages(ui, tbmodel_Stages)
