@@ -15,6 +15,8 @@ class TableControlStages(object):
         self.tbmodel_Stages = model
         model.table = ui.tableView_Stages
         self.tbmodel_Stages.header[u'stage_name'] = u'Estágio'
+        self.tbmodel_Stages.header[u'stage_status'] = u'Estado de exec.'
+
         self.tbmodel_Stages.header[u'stage_time_elapsed'] = u'Tempo decorrido'
         self.tbmodel_Stages.header[u'timer_time_elapsed'] = u'Tempo dec. timer'
         self.tbmodel_Stages.header[u'timer_time_remaining'] = u'Tempo rest. timer'
@@ -25,7 +27,9 @@ class TableControlStages(object):
         self.ui.btRemove.clicked.connect(self.bt_remove_clicked)
         self.ui.btSave.clicked.connect(self.bt_save_clicked)
         self.ui.btLoad.clicked.connect(self.bt_load_clicked)
-        ui.tableView_Stages.resizeColumnsToContents()
+        self.ui.tabWidget.setTabText(2, u'Selecione uma Etapa...')
+        self.ui.tabWidget.setTabEnabled(2, False)
+        self.ui.tableView_Stages.resizeColumnsToContents()
 
     def bt_add_clicked(self):
         self.tbmodel_Stages.add()
@@ -110,6 +114,7 @@ class ProcessController(object):
         self.timer.timeout.connect(self.process)
         self.output = 0
         self.pump_power = 0
+        self.setpoint = 0
         self.temp = 60
         self.model = model
         self.interval = sampling_interval
@@ -131,18 +136,17 @@ class ProcessController(object):
     # 1/2 segundo recebe, calculo do pid a cada 1 segundo
     def process(self):
         #se o proximo estado do serial a ser processado ehh o de envio, setar variaveis de envio
-        #if self.ser.state == ST.SEND:
-        #    self.ser.heater_power = self.output
-        #    self.ser.pump_power = self.pump_power
-        #self.ser.process()
+        if self.ser.state == ST.SEND:
+            self.ser.heater_power = self.output
+            self.ser.pump_power = self.pump_power
+        self.ser.process()
         #processar pacote apenas quando recebe-lo
-        #if self.ser.state == ST.RECEIVE:
-        #    return
-        #if self.ser.temp != -127:
-        #    self.temp = self.ser.temp
-        
-        self.temp -= 1
+        if self.ser.state == ST.RECEIVE:
+            return
 
+        if self.ser.temp != -127:
+            self.temp = self.ser.temp
+        
         print 'temp:', self.temp
 
 
@@ -150,73 +154,35 @@ class ProcessController(object):
         state_changed = (next_stage != self.current_stage)
         
         if (state_changed):
-            self.timer_started = False
+            self.set_current_stage_status(u'Concluído')
             self.current_stage = next_stage
-            self.stage_start_time = QTime().currentTime()
+            self.set_current_stage_status(u'Em execução')
+            self.reset_timers(False)
+            if self.current_stage == -1:
+                self.stop()
+                return
+            self.update_stage_status_to_ui()
+
 
         #print self.temp
         #if pid parameters has changed, they should affect here
-        #if (self.get_pid_control_changed() or self.get_pump_control_changed() or state_changed):
-        #    self.load_pid_params()
+        if (self.get_pid_control_changed() or self.get_pump_control_changed() or state_changed):
+            self.load_pid_params()
         
-        #if self.pid_enabled:
-        #    self.output = self.pid(self.temp)
+        if self.pid_enabled:
+            self.output = self.pid(self.temp)
         
         self.update_outputs_to_ui()
-
-    def update_outputs_to_ui(self):
-        if self.pid_enabled:
-            self.ui.sliderOutPower.setValue(self.output)
-        self.ui.labelOutPower.setText("%.0f %%" % (self.output / 147.0 * 100.0,))
-        self.ui.labelTemp.setText("%.2f" % (self.temp,) )
-
-
-    def get_pid_control_changed(self):
-        changed = self.model.row_data(self.current_stage)[u'PID'].get(u'changed')
-        if changed:
-            self.model.row_data(self.current_stage)[u'PID'][u'changed'] = False
-            return True
-        return False
-
-    def get_pump_control_changed(self):
-        changed = self.model.row_data(self.current_stage)[u'Pump'].get(u'changed')
-        if changed:
-            self.model.row_data(self.current_stage)[u'Pump'][u'changed'] = False
-            return True
-        return False
-
-
     
-    def load_pid_params(self):
-        p = self.model.row_data(self.current_stage)[u'PID'].get('p_value')
-        p = p if p != None else 0.0
-        i = self.model.row_data(self.current_stage)[u'PID'].get('i_value')
-        i = i if i != None else 0.0
-        d = self.model.row_data(self.current_stage)[u'PID'].get('d_value')
-        d = d if d != None else 0.0
-        output = self.model.row_data(self.current_stage)[u'PID'].get('out_power')
-        self.pump_power = self.model.row_data(self.current_stage)[u'Pump'].get('power')
-        self.output = output if output != None else 0.0
-        setpoint = self.model.row_data(self.current_stage)[u'PID'].get('set_point')
-        setpoint = setpoint if setpoint != None else 0.0
-        enabled = self.model.row_data(self.current_stage)[u'PID'].get('enabled')
-        self.pid_enabled = enabled if enabled != None else False
-        self.pid.tunings = (p, i, d)
-        self.pid.setpoint = setpoint
-        self.pid.auto_mode = self.pid_enabled
-        
-    def start(self):
-        self.ser.connect()
-        time.sleep(2)
-        self.load_pid_params()
-        self.ser.status = ST.SEND
-        self.process_start_time = QTime.currentTime()
-        self.stage_start_time = self.process_start_time
-        self.timer.start( (self.interval / 2) * 1000)
-        
-    
-    def stop(self):
-        self.timer.stop()
+    def reset_timers(self, process_start):
+        self.stage_start_time = QTime.currentTime()
+        if process_start:
+            self.process_start_time = self.stage_start_time 
+        self.stage_time_elapsed = QTime(0,0,0)
+        self.timer_time_elapsed = QTime(0,0,0)
+        self.timer_time_remaining = QTime(0,0,0)
+        self.timer_start_time = QTime(0,0,0)
+        self.timer_started = False
 
     def get_next_stage(self):
         timer_data = self.model.row_data(self.current_stage).get(u'ProcessTimer')
@@ -224,8 +190,7 @@ class ProcessController(object):
         if timer_data == None:
             return self.current_stage
 
-        time_elapsed = QTime(0,0,0).addSecs(self.stage_start_time.secsTo(QTime.currentTime()))
-        self.model.set_field(self.current_stage, u'stage_time_elapsed',time_elapsed.toString())
+        self.stage_time_elapsed = QTime(0,0,0).addSecs(self.stage_start_time.secsTo(QTime.currentTime()))
 
         if not self.timer_started:
             startCond = timer_data.get(u'startCond')
@@ -244,20 +209,105 @@ class ProcessController(object):
         if self.timer_started:
             #convert the time in secconds to QTime
             time = QTime(0,0,0).addSecs(timer_data.get(u'time'))
-            time_elapsed = QTime(0,0,0).addSecs(self.timer_start_time.secsTo(QTime.currentTime()))
-            time_remaining = QTime(0,0,0).addSecs(time_elapsed.secsTo(time))
-            self.model.set_field(self.current_stage, u'timer_time_elapsed',time_elapsed.toString())
-            self.model.set_field(self.current_stage, u'timer_time_remaining',time_remaining.toString())
-            if (time_elapsed) >= time:
+            self.timer_time_elapsed = QTime(0,0,0).addSecs(self.timer_start_time.secsTo(QTime.currentTime()))
+            self.timer_time_remaining = QTime(0,0,0).addSecs(self.timer_time_elapsed.secsTo(time))
+            if (self.timer_time_elapsed) >= time:
                 next_stage = self.current_stage + 1
                 if self.model.count() == next_stage:
-                    self.stop()
-                    return 0
-                print 'in process, next stage', next_stage
+                    return -1
                 return next_stage
 
         return self.current_stage
 
+
+    def clear_stage_status(self):
+        for i in xrange(0, self.model.count()):
+            self.model.set_field(i, u'stage_status', u'Aguardando execução...')
+
+    def set_current_stage_status(self, status):
+        self.model.set_field(self.current_stage, u'stage_status', status)
+
+    def get_current_stage_status(self):
+        return self.model.get_field(self.current_stage, u'stage_status')
+
+    def update_stage_status_to_ui(self):
+        self.ui.lbStatus.setText(self.get_current_stage_status())
+        self.ui.lbStage.setText(self.model.get_field(self.current_stage, u'stage_name'))
+        self.ui.lbNextStage.setText(self.model.get_field(self.current_stage+1, u'stage_name') if (self.current_stage+1 < self.model.count()) and (self.current_stage >= 0) else u'Fim do processo' )
+
+    def update_outputs_to_ui(self):
+        if self.pid_enabled:
+            self.ui.sliderOutPower.setValue(self.output)
+        powerStr = u'%.0f %%' % (self.output / 147.0 * 100.0,)
+        self.ui.labelOutPower.setText(powerStr)
+        self.ui.lbHeaterPower.setText(powerStr)
+        self.ui.lbPumpPower.setText(str(self.pump_power))
+        tempStr = u'%.2f º' % (self.temp,)
+        self.ui.labelTemp.setText(tempStr)
+        self.ui.lbTemp.setText(tempStr)
+        setpointStr = u'%.2f º' % (self.setpoint,)
+        self.ui.lbSetPoint.setText(setpointStr)
+        self.ui.lbStageTimeElapsed.setText(self.stage_time_elapsed.toString())
+        self.ui.lbTimerTimeElapsed.setText(self.timer_time_elapsed.toString())
+        self.ui.lbTimerTimeRemaining.setText(self.timer_time_remaining.toString())
+        self.model.set_field(self.current_stage, u'stage_time_elapsed',self.stage_time_elapsed.toString())
+        self.model.set_field(self.current_stage, u'timer_time_elapsed',self.timer_time_elapsed.toString())
+        self.model.set_field(self.current_stage, u'timer_time_remaining',self.timer_time_remaining.toString())
+
+
+    def get_pid_control_changed(self):
+        changed = self.model.row_data(self.current_stage)[u'PID'].get(u'changed')
+        if changed:
+            self.model.row_data(self.current_stage)[u'PID'][u'changed'] = False
+            return True
+        return False
+
+    def get_pump_control_changed(self):
+        changed = self.model.row_data(self.current_stage)[u'Pump'].get(u'changed')
+        if changed:
+            self.model.row_data(self.current_stage)[u'Pump'][u'changed'] = False
+            return True
+        return False
+    
+    def load_pid_params(self):
+        p = self.model.row_data(self.current_stage)[u'PID'].get('p_value')
+        p = p if p != None else 0.0
+        i = self.model.row_data(self.current_stage)[u'PID'].get('i_value')
+        i = i if i != None else 0.0
+        d = self.model.row_data(self.current_stage)[u'PID'].get('d_value')
+        d = d if d != None else 0.0
+        output = self.model.row_data(self.current_stage)[u'PID'].get('out_power')
+        self.pump_power = self.model.row_data(self.current_stage)[u'Pump'].get('power')
+        if self.pump_power == None:
+            self.pump_power = 0
+        self.output = output if output != None else 0.0
+        setpoint = self.model.row_data(self.current_stage)[u'PID'].get('set_point')
+        setpoint = setpoint if setpoint != None else 0.0
+        self.setpoint = setpoint
+        enabled = self.model.row_data(self.current_stage)[u'PID'].get('enabled')
+        self.pid_enabled = enabled if enabled != None else False
+        self.pid.tunings = (p, i, d)
+        self.pid.setpoint = setpoint
+        self.pid.auto_mode = self.pid_enabled
+        
+    def start(self):
+        self.ser.connect()
+        time.sleep(2)
+        self.load_pid_params()
+        self.ser.status = ST.SEND
+        self.reset_timers(True)
+        self.timer.start( (self.interval / 2) * 1000)
+        self.clear_stage_status()
+        self.set_current_stage_status(u'Em execução')
+        self.update_stage_status_to_ui()
+        
+    
+    def stop(self):
+        self.timer.stop()
+        self.set_current_stage_status(u'Processo concluído')
+        self.update_stage_status_to_ui()
+        self.current_stage = 0
+        
 
 
 if __name__ == "__main__":
@@ -266,7 +316,7 @@ if __name__ == "__main__":
     MainWindow = QtGui.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
-    tbmodel_Stages = DictTableModel([u'stage_name',u'stage_time_elapsed',u'timer_time_elapsed',u'timer_time_remaining'])
+    tbmodel_Stages = DictTableModel([u'stage_name',u'stage_status',u'stage_time_elapsed',u'timer_time_elapsed',u'timer_time_remaining'])
     pidControl = PIDControl(ui, tbmodel_Stages)
     pumpControl = PumpControl(ui, tbmodel_Stages)
     tableControlStages = TableControlStages(ui, tbmodel_Stages)

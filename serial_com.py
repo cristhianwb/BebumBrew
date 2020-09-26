@@ -82,7 +82,6 @@ class SerialInterface(object):
             return False
             
     def send(self):
-        print self.pump_power
         bytes_to_send = pack('iif3x', self.heater_power, self.pump_power, 0.0)
         bytes_to_send = bytearray(bytes_to_send)
         check_sum = self.crc.calculate(bytes_to_send)
