@@ -16,7 +16,8 @@ class TableControlStages(object):
         model.table = ui.tableView_Stages
         self.tbmodel_Stages.header[u'stage_name'] = u'Estágio'
         self.tbmodel_Stages.header[u'stage_time_elapsed'] = u'Tempo decorrido'
-        self.tbmodel_Stages.header[u'timer_time_remaining'] = u'Tempo restante'
+        self.tbmodel_Stages.header[u'timer_time_elapsed'] = u'Tempo dec. timer'
+        self.tbmodel_Stages.header[u'timer_time_remaining'] = u'Tempo rest. timer'
         self.ui = ui
         self.ui.tableView_Stages.setModel(self.tbmodel_Stages)
         self.ui.tableView_Stages.selectionModel().selectionChanged.connect(self.selectionChanged)
@@ -71,6 +72,12 @@ class TableControlStages(object):
         self.p_control.set_row(selected)
         self.pump_control.set_row(selected)
         self.timer_control.set_row(selected)
+        if selected != -1:    
+            self.ui.tabWidget.setTabText(2, u'Etapa %d - ' % (selected+1,) + self.tbmodel_Stages.get_field(selected, u'stage_name'))
+            self.ui.tabWidget.setTabEnabled(2, True)
+        else:
+            self.ui.tabWidget.setTabText(2, u'Selecione uma Etapa...')
+            self.ui.tabWidget.setTabEnabled(2, False)
         
 class TableControlIngridients(object):
     def __init__(self, ui):
@@ -111,6 +118,7 @@ class ProcessController(object):
         self.status = False
         self.process_start_time = None
         self.stage_start_time = None
+        self.timer_start_time = None
         self.timer_started = False
 
 
@@ -142,6 +150,7 @@ class ProcessController(object):
         state_changed = (next_stage != self.current_stage)
         
         if (state_changed):
+            self.timer_started = False
             self.current_stage = next_stage
             self.stage_start_time = QTime().currentTime()
 
@@ -201,8 +210,8 @@ class ProcessController(object):
         time.sleep(2)
         self.load_pid_params()
         self.ser.status = ST.SEND
-        self.start_time = QTime.currentTime()
-        self.stage_start_time = self.start_time
+        self.process_start_time = QTime.currentTime()
+        self.stage_start_time = self.process_start_time
         self.timer.start( (self.interval / 2) * 1000)
         
     
@@ -211,8 +220,12 @@ class ProcessController(object):
 
     def get_next_stage(self):
         timer_data = self.model.row_data(self.current_stage).get(u'ProcessTimer')
+
         if timer_data == None:
             return self.current_stage
+
+        time_elapsed = QTime(0,0,0).addSecs(self.stage_start_time.secsTo(QTime.currentTime()))
+        self.model.set_field(self.current_stage, u'stage_time_elapsed',time_elapsed.toString())
 
         if not self.timer_started:
             startCond = timer_data.get(u'startCond')
@@ -226,13 +239,15 @@ class ProcessController(object):
                 self.timer_started = (self.temp <= temp)
             
             if self.timer_started:
-                self.stage_start_time = QTime().currentTime()
+                self.timer_start_time = QTime().currentTime()
 
         if self.timer_started:
             #convert the time in secconds to QTime
             time = QTime(0,0,0).addSecs(timer_data.get(u'time'))
-            time_elapsed = QTime(0,0,0).addSecs(self.stage_start_time.secsTo(QTime.currentTime()))
-            self.model.set_field(self.current_stage, u'stage_time_elapsed',time_elapsed.toString())
+            time_elapsed = QTime(0,0,0).addSecs(self.timer_start_time.secsTo(QTime.currentTime()))
+            time_remaining = QTime(0,0,0).addSecs(time_elapsed.secsTo(time))
+            self.model.set_field(self.current_stage, u'timer_time_elapsed',time_elapsed.toString())
+            self.model.set_field(self.current_stage, u'timer_time_remaining',time_remaining.toString())
             if (time_elapsed) >= time:
                 next_stage = self.current_stage + 1
                 if self.model.count() == next_stage:
@@ -251,7 +266,7 @@ if __name__ == "__main__":
     MainWindow = QtGui.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
-    tbmodel_Stages = DictTableModel([u'stage_name',u'stage_time_elapsed',u'timer_time_remaining'])
+    tbmodel_Stages = DictTableModel([u'stage_name',u'stage_time_elapsed',u'timer_time_elapsed',u'timer_time_remaining'])
     pidControl = PIDControl(ui, tbmodel_Stages)
     pumpControl = PumpControl(ui, tbmodel_Stages)
     tableControlStages = TableControlStages(ui, tbmodel_Stages)

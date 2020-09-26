@@ -77,6 +77,10 @@ class DictTableModel(QAbstractTableModel):
         self.rows[row][u'columns'][fname] = val
         self.dataChanged.emit(self.index(row,col), self.index(row,col))      
     
+    def get_field(self, row, fname):
+        col = col = self.fields.index(fname)
+        return self.rows[row][u'columns'].get(fname)
+
     def set_field_by_column(self, row, col, val):
         self.rows[row][u'columns'][self.fields[col]] = val
         self.dataChanged.emit(self.index(row,col), self.index(row,col))      
