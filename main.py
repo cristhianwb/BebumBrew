@@ -118,7 +118,7 @@ class ProcessController(object):
         self.temp = 60
         self.model = model
         self.interval = sampling_interval
-        self.pid = PID(0.0, 0.0, 0.0, setpoint=0.0, sample_time=sampling_interval, output_limits=(0, 147), auto_mode=False, proportional_on_measurement=False)
+        self.pid = PID(0.0, 0.0, 0.0, setpoint=0.0, sample_time=sampling_interval, output_limits=(0, 100), auto_mode=False, proportional_on_measurement=False)
         self.ser = SerialInterface()
         self.status = False
         self.process_start_time = None
@@ -238,7 +238,7 @@ class ProcessController(object):
     def update_outputs_to_ui(self):
         if self.pid_enabled:
             self.ui.sliderOutPower.setValue(self.output)
-        powerStr = u'%.0f %%' % (self.output / 147.0 * 100.0,)
+        powerStr = u'%.0f %%' % (self.output,)
         self.ui.labelOutPower.setText(powerStr)
         self.ui.lbHeaterPower.setText(powerStr)
         self.ui.lbPumpPower.setText(str(self.pump_power))

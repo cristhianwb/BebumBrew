@@ -35,7 +35,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -597,16 +597,32 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QDoubleSpinBox" name="PField"/>
+            <widget class="QDoubleSpinBox" name="PField">
+             <property name="maximum">
+              <double>1000.000000000000000</double>
+             </property>
+            </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QDoubleSpinBox" name="IField"/>
+            <widget class="QDoubleSpinBox" name="IField">
+             <property name="maximum">
+              <double>1000.000000000000000</double>
+             </property>
+            </widget>
            </item>
            <item row="3" column="1">
-            <widget class="QDoubleSpinBox" name="DField"/>
+            <widget class="QDoubleSpinBox" name="DField">
+             <property name="maximum">
+              <double>1000.000000000000000</double>
+             </property>
+            </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QDoubleSpinBox" name="SPField"/>
+            <widget class="QDoubleSpinBox" name="SPField">
+             <property name="maximum">
+              <double>100.000000000000000</double>
+             </property>
+            </widget>
            </item>
            <item row="0" column="0">
             <widget class="QCheckBox" name="ChkPidEnabled">
@@ -618,7 +634,7 @@
            <item row="5" column="1">
             <widget class="QSlider" name="sliderOutPower">
              <property name="maximum">
-              <number>147</number>
+              <number>100</number>
              </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
