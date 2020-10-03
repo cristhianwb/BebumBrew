@@ -73,11 +73,9 @@ static uint8_t tmrCount = 0;
 // Global state variables
 bool Dimmer::started = false; // At least one dimmer has started
 
-
 // Zero cross interrupt
 void callZeroCross() {
   // Clear the timer and enable nested interrupts so that the timer can be updated while this ISR is executed
-  digitalWrite(13, !digitalRead(13));
   TCNT(DIMMER_TIMER) = 0;
   tmrCount = 0;
   sei();
@@ -100,7 +98,6 @@ void callZeroCross() {
 }
 
 // Timer interrupt
-
 ISR(TIMER_COMPA_VECTOR(DIMMER_TIMER)) {
   // Increment ticks
   if (tmrCount < 254) {
@@ -108,7 +105,6 @@ ISR(TIMER_COMPA_VECTOR(DIMMER_TIMER)) {
   }
 
   // Process each registered triac and turn it on if needed
-
   for (uint8_t i = 0; i < dimmerCount; i++) {
     if (tmrCount == triacTimes[i]) {
       *triacPinPorts[i] |= triacPinMasks[i];
@@ -130,7 +126,6 @@ Dimmer::Dimmer(uint8_t pin, uint8_t mode, double rampTime, uint8_t freq) :
         pulseCount(0),
         pulsesUsed(0),
         acFreq(freq) {
-
   if (dimmerCount < DIMMER_MAX_TRIAC) {
     // Register dimmer object being created
     dimmerIndex = dimmerCount;
@@ -156,15 +151,14 @@ void Dimmer::begin(uint8_t value, bool on) {
     // Start zero cross circuit if not started yet
     pinMode(DIMMER_ZERO_CROSS_PIN, INPUT);
     attachInterrupt(DIMMER_ZERO_CROSS_INTERRUPT, callZeroCross, RISING);
-    
+
     // Setup timer to fire every 50us @ 60Hz
-    
     TCNT(DIMMER_TIMER) = 0;                      // Clear timer
     TCCRxA(DIMMER_TIMER) = TCCRxA_VALUE;         // Timer config byte A
     TCCRxB(DIMMER_TIMER) = TCCRxB_VALUE;         // Timer config byte B
     TIMSKx(DIMMER_TIMER) = 0x02;                 // Timer Compare Match Interrupt Enable
     OCRxA(DIMMER_TIMER) = 100 * 60 / acFreq - 1; // Compare value (frequency adjusted)
-   
+
     started = true;
   }
 }
@@ -194,9 +188,8 @@ uint8_t Dimmer::getValue() {
 }
 
 void Dimmer::set(uint8_t value) {
-  sei();
-  if (value > 147) {
-    value = 147;
+  if (value > 100) {
+    value = 100;
   }
 
   if (value < minValue) {
@@ -225,8 +218,8 @@ void Dimmer::set(uint8_t value, bool on) {
 }
 
 void Dimmer::setMinimum(uint8_t value) {
-  if (value > 147) {
-    value = 147;
+  if (value > 100) {
+    value = 100;
   }
 
   minValue = value;
@@ -245,7 +238,6 @@ void Dimmer::setRampTime(double rampTime) {
     rampCounter = rampCycles;
   }
 }
-
 
 void Dimmer::zeroCross() {
   if (operatingMode == DIMMER_COUNT) {
@@ -281,7 +273,7 @@ void Dimmer::zeroCross() {
     // Calculate triac time for the current cycle
     uint8_t value = getValue();
     if (value > 0 && lampState) {
-      triacTimes[dimmerIndex] = 147 - value;//pgm_read_byte(&powerToTicks[value - 1]);
+      triacTimes[dimmerIndex] = pgm_read_byte(&powerToTicks[value - 1]);
     }
 
     // Increment the ramp counter until it reaches the total number of cycles for the ramp

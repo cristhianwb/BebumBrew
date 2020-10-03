@@ -55,7 +55,7 @@ class Dimmer {
      * Constructor.
      *
      * @param pin pin that activates the triac.
-     * @param mode operating mode.hh
+     * @param mode operating mode.
      *          Possible modes:
      *          NORMAL_MODE: Uses timer to apply only a percentage of the AC power to the lamp every half cycle.
      *          RAMP_MODE: Same as in normal mode, but it applies a ramp effect when changing levels. @see rampTime
@@ -77,8 +77,6 @@ class Dimmer {
      */
     void begin(uint8_t value = 0, bool on = true);
 
-    
-    
     /**
      * Turns the lamp OFF.
      */
@@ -145,7 +143,6 @@ class Dimmer {
     uint8_t operatingMode;
     bool lampState;
     uint8_t lampValue;
-    
     uint8_t minValue;
     uint8_t rampStartValue;
     uint16_t rampCounter;
@@ -157,7 +154,6 @@ class Dimmer {
     uint64_t pulsesLow;
 
     void zeroCross();
-    void handleReadings();
 
     friend void callTriac();
     friend void callZeroCross();

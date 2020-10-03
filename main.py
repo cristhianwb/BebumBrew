@@ -139,11 +139,11 @@ class ProcessController(object):
         if self.ser.state == ST.SEND:
             self.ser.heater_power = self.output
             self.ser.pump_power = self.pump_power
-        self.ser.process()
+        
         #processar pacote apenas quando recebe-lo
-        if self.ser.state == ST.RECEIVE:
+        if not self.ser.process():
             return
-
+        
         if self.ser.temp != -127:
             self.temp = self.ser.temp
         
@@ -291,8 +291,6 @@ class ProcessController(object):
         self.pid.auto_mode = self.pid_enabled
         
     def start(self):
-        self.ser.connect()
-        time.sleep(2)
         self.load_pid_params()
         self.ser.status = ST.SEND
         self.reset_timers(True)
@@ -304,6 +302,7 @@ class ProcessController(object):
     
     def stop(self):
         self.timer.stop()
+        self.ser.disconnect()
         self.set_current_stage_status(u'Processo concluído')
         self.update_stage_status_to_ui()
         self.current_stage = 0
