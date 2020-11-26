@@ -8,6 +8,7 @@ import json
 import io
 from simple_pid import PID
 from serial_com import *
+from plot import *
 import time
 
 class TableControlStages(object):
@@ -46,7 +47,7 @@ class TableControlStages(object):
         return self.tbmodel_Stages
 
     def bt_save_clicked(self):
-        fname = unicode(QFileDialog.getSaveFileName(caption='Abrir arquivo de processo',filter='Arquivo de processo (*.prc)'))
+        fname = unicode(QFileDialog.getSaveFileName(caption='Salvar arquivo de processo',filter='Arquivo de processo (*.prc)'))
         if (fname == u''): return
         f = io.open(fname + u'.prc', "w",encoding="utf-8")
         f.write(json.dumps(self.tbmodel_Stages.rows, ensure_ascii=False,indent=2))
@@ -125,6 +126,7 @@ class ProcessController(object):
         self.stage_start_time = None
         self.timer_start_time = None
         self.timer_started = False
+        self.plot_control = PlotControl(ui)
 
 
     #a funcao process ehh chamada a cada metade da taxa de amostragem
@@ -173,6 +175,7 @@ class ProcessController(object):
             self.output = self.pid(self.temp)
         
         self.update_outputs_to_ui()
+        self.plot_control.plot(self.temp, self.output)
     
     def reset_timers(self, process_start):
         self.stage_start_time = QTime.currentTime()
@@ -241,11 +244,11 @@ class ProcessController(object):
         powerStr = u'%.0f %%' % (self.output,)
         self.ui.labelOutPower.setText(powerStr)
         self.ui.lbHeaterPower.setText(powerStr)
-        self.ui.lbPumpPower.setText(str(self.pump_power))
+        self.ui.lbPumpPower.setText(u'%.0f%%' % (self.pump_power / 255.0 * 100.0,))
         tempStr = u'%.2f º' % (self.temp,)
         self.ui.labelTemp.setText(tempStr)
         self.ui.lbTemp.setText(tempStr)
-        setpointStr = u'%.2f º' % (self.setpoint,)
+        setpointStr = u'%.1f º' % (self.setpoint,)
         self.ui.lbSetPoint.setText(setpointStr)
         self.ui.lbStageTimeElapsed.setText(self.stage_time_elapsed.toString())
         self.ui.lbTimerTimeElapsed.setText(self.timer_time_elapsed.toString())
