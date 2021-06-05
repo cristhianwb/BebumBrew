@@ -110,7 +110,7 @@ class SerialInterface(object):
                     print 'Handshake complete!'
                     return True
                 else:
-                    raise Exception('The message is different except 0x%X but is 0x%X)' % (self.SYNC_CODE_RCV,b) )
+                    raise Exception('The message is different expected 0x%X but is 0x%X)' % (self.SYNC_CODE_RCV,b) )
 
             except Exception as e:
                 print 'Could not connect to port %s, reason: %s - Trying next port' % (port, e)

@@ -818,9 +818,25 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
-            <widget class="QScrollBar" name="horizontalScrollBar">
+            <widget class="QScrollBar" name="plotPosScroll">
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>1</number>
+             </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="chkAutoScroll">
+             <property name="text">
+              <string>Auto Scroll</string>
              </property>
             </widget>
            </item>
@@ -841,16 +857,16 @@
                   <number>0</number>
                  </property>
                  <property name="maximum">
-                  <number>100</number>
+                  <number>99</number>
                  </property>
                  <property name="singleStep">
                   <number>1</number>
                  </property>
                  <property name="value">
-                  <number>0</number>
+                  <number>1</number>
                  </property>
                  <property name="sliderPosition">
-                  <number>0</number>
+                  <number>1</number>
                  </property>
                  <property name="tracking">
                   <bool>true</bool>
