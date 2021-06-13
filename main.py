@@ -280,7 +280,11 @@ class ProcessController(object):
         d = self.model.row_data(self.current_stage)[u'PID'].get('d_value')
         d = d if d != None else 0.0
         output = self.model.row_data(self.current_stage)[u'PID'].get('out_power')
-        self.pump_power = self.model.row_data(self.current_stage)[u'Pump'].get('power')
+        if self.model.row_data(self.current_stage)[u'Pump'].get('enabled'):
+            self.pump_power = self.model.row_data(self.current_stage)[u'Pump'].get('power')
+        else:
+            self.pump_power = 0
+        
         if self.pump_power == None:
             self.pump_power = 0
         self.output = output if output != None else 0.0

@@ -94,11 +94,11 @@ class PumpControl(object):
 
     def set_enabled(self, val):
         self.enabled = val
-        self.valueChanged('enabled', val)
+        self.valueChanged('enabled', self.enabled)
 
     def set_power(self, val):
         self.power = val
-        self.valueChanged('power', val)
+        self.valueChanged('power', self.power)
 
     def valueChanged(self, pr_name, pr_value):
         if self.model != None and self.row != -1:

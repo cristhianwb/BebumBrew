@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+from PyQt4.QtGui import *
 
 from matplotlib.backends.qt_compat import QtCore, QtWidgets
 from matplotlib.backends.backend_qt4agg import (
@@ -29,6 +30,16 @@ class PlotControl(object):
         layout.insertWidget(0, self.canvas)
         ui.zoomSlider.valueChanged.connect(self.zoom_changed)
 
+        self.set_button_color(ui.pushPumpColor, 'blue')
+        self.set_button_color(ui.pushHeaterColor, 'red')
+        self.set_button_color(ui.pushSensor1Color, 'green')
+        self.set_button_color(ui.pushSensor2Color, 'yellow')
+
+        ui.pushPumpColor.clicked.connect(lambda: self.set_button_color(ui.pushPumpColor))
+        ui.pushHeaterColor.clicked.connect(lambda: self.set_button_color(ui.pushHeaterColor))
+        ui.pushSensor1Color.clicked.connect(lambda: self.set_button_color(ui.pushSensor1Color))
+        ui.pushSensor2Color.clicked.connect(lambda: self.set_button_color(ui.pushSensor2Color))
+
 
     def set_window_size(self):
         sensor1 = self.data['sensor1']
@@ -36,6 +47,9 @@ class PlotControl(object):
         window_size = int((count / 100.0) * (100.0 - self.zoom))
         self.window_size = window_size if window_size > 0 else 1
         
+    def set_button_color(self, wich_button, color = None):
+        xcolor = color if color is not None else QColorDialog.getColor().name()
+        wich_button.setStyleSheet("background-color: %s" % (xcolor,))
 
 
     def plot(self, temp1, power, p_power):
@@ -50,9 +64,10 @@ class PlotControl(object):
         # create an axis
         ax = self.figure.add_subplot(111)
         # plot data
-        ax.plot(sensor1, color = 'green')        
+
         if self.ui.chkAutoScroll.isChecked() and (self.window_count == 1):
             self.set_window_size()
+        
         count = len(sensor1)
         window_count = int(float(count) / self.window_size)
         self.window_count = window_count if window_count > 0 else 1
@@ -67,8 +82,19 @@ class PlotControl(object):
         ax.set_ylim(0, 110)
         ax.set_xlabel('Tempo (s)')
         ax.set_ylabel(u'Temperatura (º)')
-        ax.plot(heater_power, color = 'red')
-        ax.plot(pump_power, color = 'blue')
+        if self.ui.chkSensor1Line.isChecked():
+            color = self.ui.pushSensor1Color.palette().color(QPalette.Background)
+            color = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
+            ax.plot(sensor1, color = color)
+
+        if self.ui.chkHeaterLine.isChecked():
+            color = self.ui.pushHeaterColor.palette().color(QPalette.Background)
+            color = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
+            ax.plot(heater_power, color = color)
+        if self.ui.chkPumpLine.isChecked():
+            color = self.ui.pushPumpColor.palette().color(QPalette.Background)
+            color = (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
+            ax.plot(pump_power, color =  color)
         ax2 = ax.twinx()
         ax2.set_ylim(0,100)
         ax2.set_ylabel(u'Potência (%)')       
