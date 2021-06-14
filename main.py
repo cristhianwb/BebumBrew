@@ -2,6 +2,7 @@
 from mainwindow import *
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+#from PyQt4.QtWidgets import QMessageBox
 from pid import PIDControl, PumpControl, TimerControl
 from model import DictTableModel
 import json
@@ -10,6 +11,12 @@ from simple_pid import PID
 from serial_com import *
 from plot import *
 import time
+from enum import Enum
+
+class TimerState(Enum):
+    STOPPED = 0
+    RUNNING = 1
+    PAUSED  = 2
 
 class TableControlStages(object):
     def __init__(self, ui, model):
@@ -110,8 +117,13 @@ class ProcessController(object):
         self.ui = ui
         self.ui.btStart.clicked.connect(self.start)
         self.ui.btStop.clicked.connect(self.stop)
+        self.ui.btPause.clicked.connect(self.pause)
+        self.ui.btPrev.clicked.connect(self.goto_prev_stage)
+        self.ui.btNext.clicked.connect(self.goto_next_stage)
         self.timer = QTimer()
+        self.timer_state = TimerState.STOPPED        
         self.current_stage = 0
+        self.next_stage = None
         self.timer.timeout.connect(self.process)
         self.output = 0
         self.pump_power = 0
@@ -188,6 +200,12 @@ class ProcessController(object):
         self.timer_started = False
 
     def get_next_stage(self):
+        #This is used when the user forces the change of the stage
+        if self.next_stage is not None:
+            nxt_stage = self.next_stage
+            self.next_stage = None
+            return nxt_stage
+
         timer_data = self.model.row_data(self.current_stage).get(u'ProcessTimer')
 
         if timer_data == None:
@@ -298,22 +316,51 @@ class ProcessController(object):
         self.pid.auto_mode = self.pid_enabled
         
     def start(self):
-        self.load_pid_params()
-        self.ser.status = ST.SEND
-        self.reset_timers(True)
-        self.timer.start( (self.interval / 2) * 1000)
-        self.clear_stage_status()
+        if self.timer_state == TimerState.RUNNING:
+            return
+
+        if self.timer_state == TimerState.STOPPED:
+            self.load_pid_params()
+            self.ser.status = ST.SEND
+            self.reset_timers(True)
+            self.clear_stage_status()
         self.set_current_stage_status(u'Em execução')
         self.update_stage_status_to_ui()
+        self.timer.start( (self.interval / 2) * 1000)
+        self.timer_state = TimerState.RUNNING
         
     
     def stop(self):
+        if self.timer_state == TimerState.STOPPED: return
+        reply = QMessageBox.question(None, 'Parar o processo', 'Tem certeza que deseja parar o processo?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.No: return
         self.timer.stop()
         self.ser.disconnect()
         self.set_current_stage_status(u'Processo concluído')
         self.update_stage_status_to_ui()
         self.current_stage = 0
-        
+        self.timer_state = TimerState.STOPPED
+    
+    def pause(self):
+        if self.timer_state != TimerState.RUNNING: return
+        self.timer_state = TimerState.PAUSED
+        self.set_current_stage_status(u'Processo pausado')
+        self.update_stage_status_to_ui()
+        self.timer.stop()
+
+    def goto_prev_stage(self):
+        if self.current_stage == 0: return
+        reply = QMessageBox.question(None, u'Pular estágio', u'Tem certeza que deseja pular para o estágio anterior?' + 
+                    u' Todas informações do estágio atual serão perdidas', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes: 
+            self.next_stage = self.current_stage - 1 
+
+    def goto_next_stage(self):
+        if (self.current_stage + 1) == self.model.count(): return
+        reply = QMessageBox.question(None, u'Pular estágio', u'Tem certeza que deseja pular para o proximo estágio?' + 
+                    u'Todas informações do estágio atual serão perdidas', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes: 
+            self.next_stage = self.current_stage + 1    
 
 
 if __name__ == "__main__":

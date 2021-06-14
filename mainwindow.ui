@@ -35,7 +35,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>1</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -120,6 +120,18 @@
             </property>
            </widget>
           </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="lbNextStage">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Nenhuma</string>
+            </property>
+           </widget>
+          </item>
           <item row="2" column="0">
            <widget class="QLabel" name="label_3">
             <property name="font">
@@ -131,6 +143,18 @@
             </property>
             <property name="text">
              <string>Estado</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLabel" name="lbStatus">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Aguardando inicio</string>
             </property>
            </widget>
           </item>
@@ -148,6 +172,18 @@
             </property>
            </widget>
           </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="lbStageTimeElapsed">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>00:00:00</string>
+            </property>
+           </widget>
+          </item>
           <item row="4" column="0">
            <widget class="QLabel" name="label_5">
             <property name="font">
@@ -159,6 +195,18 @@
             </property>
             <property name="text">
              <string>Tempo de timer</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLabel" name="lbTimerTimeElapsed">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>00:00:00</string>
             </property>
            </widget>
           </item>
@@ -176,6 +224,18 @@
             </property>
            </widget>
           </item>
+          <item row="5" column="1">
+           <widget class="QLabel" name="lbTimerTimeRemaining">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>00:00:00</string>
+            </property>
+           </widget>
+          </item>
           <item row="6" column="0">
            <widget class="QLabel" name="label_7">
             <property name="font">
@@ -190,6 +250,18 @@
             </property>
            </widget>
           </item>
+          <item row="6" column="1">
+           <widget class="QLabel" name="lbTemp">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>0º</string>
+            </property>
+           </widget>
+          </item>
           <item row="7" column="0">
            <widget class="QLabel" name="label_13">
             <property name="font">
@@ -201,6 +273,18 @@
             </property>
             <property name="text">
              <string>Set Point</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="QLabel" name="lbSetPoint">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>0º</string>
             </property>
            </widget>
           </item>
@@ -241,90 +325,6 @@
             </property>
             <property name="text">
              <string>Potência bomba</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLabel" name="lbNextStage">
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Nenhuma</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="lbStatus">
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Aguardando inicio</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="lbStageTimeElapsed">
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>00:00:00</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QLabel" name="lbTimerTimeElapsed">
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>00:00:00</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QLabel" name="lbTimerTimeRemaining">
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>00:00:00</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="1">
-           <widget class="QLabel" name="lbTemp">
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>0º</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="1">
-           <widget class="QLabel" name="lbSetPoint">
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>0º</string>
             </property>
            </widget>
           </item>
@@ -411,7 +411,7 @@
           <item>
            <widget class="QToolButton" name="btStart">
             <property name="text">
-             <string>...</string>
+             <string/>
             </property>
             <property name="icon">
              <iconset>
@@ -428,6 +428,42 @@
             <property name="icon">
              <iconset>
               <normalon>:/Icons/Icons/stop.png</normalon>
+             </iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="btPause">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normalon>:/Icons/Icons/pause.png</normalon>
+             </iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="btPrev">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normalon>:/Icons/Icons/prev.png</normalon>
+             </iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="btNext">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normalon>:/Icons/Icons/next.png</normalon>
              </iconset>
             </property>
            </widget>

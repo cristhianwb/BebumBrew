@@ -39,7 +39,15 @@ class DictTableModel(QAbstractTableModel):
             return QVariant()
         elif role != Qt.DisplayRole and role != Qt.EditRole:
             return QVariant()
-        return QVariant(self.rows[index.row()][u'columns'][ self.fields[index.column()]] )
+
+        value = self.rows[index.row()][u'columns'].get(self.fields[index.column()])
+
+        if value is None:
+            value = u''
+            self.rows[index.row()][u'columns'][self.fields[index.column()]] = value
+            
+        return QVariant(value)
+
     
     def flags(self, index):
         return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
