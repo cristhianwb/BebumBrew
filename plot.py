@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from PyQt4.QtGui import *
+from PyQt5.QtGui import *
 
 from matplotlib.backends.qt_compat import QtCore, QtWidgets
 from matplotlib.backends.backend_qt4agg import (
@@ -77,7 +77,7 @@ class PlotControl(object):
 
         wx_0 = (self.ui.plotPosScroll.value() * self.window_size)
         wx_1 = wx_0 + self.window_size
-        print "wsize: %f, wcount: %d, w0: %f, w1: %f" % (self.window_size, self.window_count, wx_0, wx_1)
+        print("wsize: %f, wcount: %d, w0: %f, w1: %f" % (self.window_size, self.window_count, wx_0, wx_1))
         ax.set_xlim(wx_0, wx_1)
         ax.set_ylim(0, 110)
         ax.set_xlabel('Tempo (s)')

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from mainwindow import *
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-#from PyQt4.QtWidgets import QMessageBox
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QMessageBox
 from pid import PIDControl, PumpControl, TimerControl
 from model import DictTableModel
 import json
@@ -161,7 +161,7 @@ class ProcessController(object):
         if self.ser.temp != -127:
             self.temp = self.ser.temp
         
-        print 'temp:', self.temp
+        print('temp:', self.temp)
 
 
         next_stage = self.get_next_stage()
@@ -242,7 +242,7 @@ class ProcessController(object):
 
 
     def clear_stage_status(self):
-        for i in xrange(0, self.model.count()):
+        for i in range(0, self.model.count()):
             self.model.set_field(i, u'stage_status', u'Aguardando execução...')
 
     def set_current_stage_status(self, status):
@@ -332,7 +332,7 @@ class ProcessController(object):
     
     def stop(self):
         if self.timer_state == TimerState.STOPPED: return
-        reply = QMessageBox.question(None, 'Parar o processo', 'Tem certeza que deseja parar o processo?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        reply = QMessageBox().question(None, 'Parar o processo', 'Tem certeza que deseja parar o processo?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.No: return
         self.timer.stop()
         self.ser.disconnect()
@@ -365,8 +365,8 @@ class ProcessController(object):
 
 if __name__ == "__main__":
     import sys
-    app = QtGui.QApplication(sys.argv)
-    MainWindow = QtGui.QMainWindow()
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     tbmodel_Stages = DictTableModel([u'stage_name',u'stage_status',u'stage_time_elapsed',u'timer_time_elapsed',u'timer_time_remaining'])

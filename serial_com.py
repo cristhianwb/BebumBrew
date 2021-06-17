@@ -85,36 +85,36 @@ class SerialInterface(object):
         possible_ports = []
         for port, pname, pidvid  in comports():
             if pidvid != 'n/a':
-                print 'Found port %s desc: %s' % (port, pname)
+                print('Found port %s desc: %s' % (port, pname))
                 possible_ports.append((port, pname))
         
 
         for port, pname in possible_ports:
             try:
-                print 'Trying port - ' + port
+                print('Trying port - ' + port)
                 self.conn = serial.Serial(port, self.baud, timeout=0.5)
                 if self.conn == None:
                     raise()
-                print 'Port openned! Sending handshake'
+                print('Port openned! Sending handshake')
                 self.send(self.SYNC_CODE, 0)
-                print 'Receiving handshake'
+                print('Receiving handshake')
                 time.sleep(1)
                 rcv = self.receive()
                 if rcv == None:
                     raise Exception()
                 a, b, c = rcv
-                print 'Finnishing handshake'
+                print('Finnishing handshake')
                 if b == self.SYNC_CODE_RCV:
                     self.send(0, self.SYNC_CODE)
                     self.port = port
-                    print 'Handshake complete!'
+                    print('Handshake complete!')
                     return True
                 else:
                     raise Exception('The message is different expected 0x%X but is 0x%X)' % (self.SYNC_CODE_RCV,b) )
 
             except Exception as e:
-                print 'Could not connect to port %s, reason: %s - Trying next port' % (port, e)
-        print 'Impossible to connect to any port available, trying next time'
+                print('Could not connect to port %s, reason: %s - Trying next port' % (port, e))
+        print('Impossible to connect to any port available, trying next time')
         return False
 
 
@@ -131,7 +131,7 @@ class SerialInterface(object):
             self.conn.write(bytes_to_send)
             return True
         except Exception as e:
-            print ('Problema ao enviar pacote: ', e)
+            print('Problema ao enviar pacote: ', e)
             #self.conn.reset_output_buffer()
             return False
     
@@ -146,7 +146,7 @@ class SerialInterface(object):
             else:
                 raise Exception('Erro no CRC, esperado %h encontrado %h' % (self.crc.calculate(bytearray(rcv[0:-1])) , check_sum) )
         except Exception as e:
-            print ('Problema ao receber pacote: ', e)
+            print('Problema ao receber pacote: ', e)
             #self.conn.reset_input_buffer()
             return None
     
@@ -157,14 +157,14 @@ class SerialInterface(object):
 
     def process(self):
         if (self.state == ST.SEND):
-            print '---------'
-            print self.current_error_count
-            print self.is_connected
+            print('---------')
+            print(self.current_error_count)
+            print(self.is_connected)
             if (self.current_error_count == self.max_error_count) or not self.is_connected:
                 
                 self.is_connected = self.connect()
                 if self.is_connected:
-                    print 'Connected!'
+                    print('Connected!')
                 self.current_error_count = 0
                 return False
 

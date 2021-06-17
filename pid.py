@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtCore import QTime
+from PyQt5.QtCore import QTime
 
 
 class PIDControl(object):
