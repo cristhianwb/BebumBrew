@@ -31,11 +31,20 @@
         <pointsize>8</pointsize>
        </font>
       </property>
+      <property name="styleSheet">
+       <string notr="true">QTabBar::tab { height: 35px}</string>
+      </property>
       <property name="tabShape">
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>16</width>
+        <height>16</height>
+       </size>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -58,6 +67,12 @@
          <layout class="QFormLayout" name="formLayout_3">
           <property name="fieldGrowthPolicy">
            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <property name="leftMargin">
+           <number>20</number>
+          </property>
+          <property name="topMargin">
+           <number>20</number>
           </property>
           <item row="0" column="0">
            <widget class="QLabel" name="label">
@@ -98,7 +113,7 @@
            <widget class="QLabel" name="lbStage">
             <property name="font">
              <font>
-              <pointsize>13</pointsize>
+              <pointsize>12</pointsize>
              </font>
             </property>
             <property name="text">
@@ -110,7 +125,7 @@
            <widget class="QLabel" name="label_9">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -124,7 +139,7 @@
            <widget class="QLabel" name="lbNextStage">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
              </font>
             </property>
             <property name="text">
@@ -136,7 +151,7 @@
            <widget class="QLabel" name="label_3">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -150,7 +165,7 @@
            <widget class="QLabel" name="lbStatus">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
              </font>
             </property>
             <property name="text">
@@ -162,7 +177,7 @@
            <widget class="QLabel" name="label_4">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -176,7 +191,7 @@
            <widget class="QLabel" name="lbStageTimeElapsed">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
              </font>
             </property>
             <property name="text">
@@ -188,7 +203,7 @@
            <widget class="QLabel" name="label_5">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -202,7 +217,7 @@
            <widget class="QLabel" name="lbTimerTimeElapsed">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
              </font>
             </property>
             <property name="text">
@@ -214,7 +229,7 @@
            <widget class="QLabel" name="label_6">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -228,7 +243,7 @@
            <widget class="QLabel" name="lbTimerTimeRemaining">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
              </font>
             </property>
             <property name="text">
@@ -240,7 +255,7 @@
            <widget class="QLabel" name="label_7">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -254,7 +269,7 @@
            <widget class="QLabel" name="lbTemp">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
              </font>
             </property>
             <property name="text">
@@ -266,7 +281,7 @@
            <widget class="QLabel" name="label_13">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -280,7 +295,7 @@
            <widget class="QLabel" name="lbSetPoint">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
              </font>
             </property>
             <property name="text">
@@ -292,7 +307,7 @@
            <widget class="QLabel" name="label_12">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -306,7 +321,7 @@
            <widget class="QLabel" name="lbHeaterPower">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
              </font>
             </property>
             <property name="text">
@@ -318,7 +333,7 @@
            <widget class="QLabel" name="label_8">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -332,7 +347,7 @@
            <widget class="QLabel" name="lbPumpPower">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
              </font>
             </property>
             <property name="text">
@@ -932,7 +947,7 @@
                 </size>
                </property>
                <property name="title">
-                <string>GroupBox</string>
+                <string>Dados a plotar</string>
                </property>
                <layout class="QFormLayout" name="formLayout_5">
                 <property name="fieldGrowthPolicy">
@@ -1117,7 +1132,7 @@
      <x>0</x>
      <y>0</y>
      <width>699</width>
-     <height>30</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

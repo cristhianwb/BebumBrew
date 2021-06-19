@@ -8,7 +8,8 @@ from model import DictTableModel
 import json
 import io
 from simple_pid import PID
-from serial_com import *
+#from serial_com import * #for functioning with device use this
+from serial_emulator import * #and for testing use this
 from plot import *
 import time
 from enum import Enum
@@ -378,6 +379,8 @@ if __name__ == "__main__":
     tableControlStages.set_TimerControl(TimerControl(ui, tbmodel_Stages))
     tableControlIngridients = TableControlIngridients(ui)
     processController = ProcessController(ui, tbmodel_Stages)
+    MainWindow.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
+    MainWindow.setWindowState(QtCore.Qt.WindowFullScreen) 
     MainWindow.show()
     sys.exit(app.exec_())
     
