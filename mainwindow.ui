@@ -848,7 +848,26 @@
          <enum>QLayout::SetDefaultConstraint</enum>
         </property>
         <item>
-         <widget class="QGroupBox" name="groupBox">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QToolBox" name="toolBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -858,205 +877,257 @@
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>16772715</height>
+            <height>16777215</height>
            </size>
           </property>
-          <property name="title">
-           <string>GroupBox</string>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_5">
-           <item>
-            <widget class="QScrollBar" name="plotPosScroll">
-             <property name="minimum">
-              <number>0</number>
-             </property>
-             <property name="maximum">
-              <number>1</number>
-             </property>
-             <property name="value">
-              <number>1</number>
-             </property>
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="chkAutoScroll">
-             <property name="text">
-              <string>Auto Scroll</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_4">
-             <item>
-              <layout class="QFormLayout" name="formLayout_4">
-               <property name="fieldGrowthPolicy">
-                <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-               </property>
-               <item row="0" column="0">
-                <widget class="QLabel" name="testLabel">
-                 <property name="text">
-                  <string>Zoom</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QSlider" name="zoomSlider">
-                 <property name="minimum">
-                  <number>0</number>
-                 </property>
-                 <property name="maximum">
-                  <number>99</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>1</number>
-                 </property>
-                 <property name="value">
-                  <number>1</number>
-                 </property>
-                 <property name="sliderPosition">
-                  <number>1</number>
-                 </property>
-                 <property name="tracking">
-                  <bool>true</bool>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="invertedAppearance">
-                  <bool>false</bool>
-                 </property>
-                 <property name="invertedControls">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <widget class="QGroupBox" name="groupBox_2">
-               <property name="minimumSize">
-                <size>
-                 <width>200</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="title">
-                <string>Dados a plotar</string>
-               </property>
-               <layout class="QFormLayout" name="formLayout_5">
-                <property name="fieldGrowthPolicy">
-                 <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+          <property name="tabSpacing">
+           <number>5</number>
+          </property>
+          <widget class="QWidget" name="PageChartPos">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>659</width>
+             <height>70</height>
+            </rect>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>70</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <attribute name="label">
+            <string>Posição do gráfico</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetMinimumSize</enum>
+            </property>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_7">
+              <item>
+               <widget class="QCheckBox" name="chkAutoScroll">
+                <property name="maximumSize">
+                 <size>
+                  <width>100</width>
+                  <height>16777215</height>
+                 </size>
                 </property>
-                <item row="0" column="0">
-                 <widget class="QCheckBox" name="chkPumpLine">
-                  <property name="text">
-                   <string>Potência da Bomba</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QCheckBox" name="chkHeaterLine">
-                  <property name="text">
-                   <string>Potência da Resistência</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QCheckBox" name="chkSensor1Line">
-                  <property name="text">
-                   <string>Senor 1 Temperatura</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QCheckBox" name="chkSensor2Line">
-                  <property name="text">
-                   <string>Sensor 2 Temperatura</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QPushButton" name="pushPumpColor">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>30</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QPushButton" name="pushHeaterColor">
-                  <property name="maximumSize">
-                   <size>
-                    <width>30</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QPushButton" name="pushSensor1Color">
-                  <property name="maximumSize">
-                   <size>
-                    <width>30</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QPushButton" name="pushSensor2Color">
-                  <property name="maximumSize">
-                   <size>
-                    <width>30</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_7"/>
-             </item>
-            </layout>
-           </item>
-          </layout>
+                <property name="text">
+                 <string>Auto Scroll</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QScrollBar" name="plotPosScroll">
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>1</number>
+                </property>
+                <property name="value">
+                 <number>1</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_9">
+              <item>
+               <widget class="QLabel" name="testLabel">
+                <property name="text">
+                 <string>Zoom</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSlider" name="zoomSlider">
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>99</number>
+                </property>
+                <property name="singleStep">
+                 <number>1</number>
+                </property>
+                <property name="value">
+                 <number>1</number>
+                </property>
+                <property name="sliderPosition">
+                 <number>1</number>
+                </property>
+                <property name="tracking">
+                 <bool>true</bool>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>false</bool>
+                </property>
+                <property name="invertedControls">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="pageLineSelectors">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>646</width>
+             <height>88</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>Propriedades das linhas</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <layout class="QFormLayout" name="formLayout_6">
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="chkSensor1Line">
+                <property name="text">
+                 <string>Senor 1 Temperatura</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QPushButton" name="pushSensor1Color">
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QCheckBox" name="chkSensor2Line">
+                <property name="text">
+                 <string>Sensor 2 Temperatura</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPushButton" name="pushSensor2Color">
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QFormLayout" name="formLayout_7">
+              <property name="fieldGrowthPolicy">
+               <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+              </property>
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="chkHeaterLine">
+                <property name="text">
+                 <string>Potência da Resistência</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QPushButton" name="pushHeaterColor">
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QCheckBox" name="chkPumpLine">
+                <property name="text">
+                 <string>Potência da Bomba</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPushButton" name="pushPumpColor">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
        </layout>
