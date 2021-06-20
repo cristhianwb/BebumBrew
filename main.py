@@ -384,7 +384,7 @@ if __name__ == "__main__":
     tableControlIngridients = TableControlIngridients(ui)
     processController = ProcessController(ui, tbmodel_Stages)
     MainWindow.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
-    MainWindow.setWindowState(QtCore.Qt.WindowFullScreen) 
+    MainWindow.setWindowState(QtCore.Qt.WindowMaximized) 
     MainWindow.show()
     sys.exit(app.exec_())
     

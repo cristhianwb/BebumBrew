@@ -72,10 +72,10 @@ class PlotControl(object):
                     init_func=lambda: self.make_lines(), blit=False, interval = 1000)
             self.canvas.draw()
         else:
-            self.ani.resume()
+            self.ani.event_source.start()
 
     def stop(self):
-        self.ani.pause()
+        self.ani.event_source.stop()
 
     def tabChanged(self, pageIndex):
         if pageIndex == self.tab_plot_index:
