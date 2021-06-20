@@ -12,9 +12,9 @@ from simple_pid import PID
 from serial_emulator import * #and for testing use this
 from plot import *
 import time
-from enum import Enum
+#from enum import Enum
 
-class TimerState(Enum):
+class TimerState():
     STOPPED = 0
     RUNNING = 1
     PAUSED  = 2
