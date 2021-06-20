@@ -578,7 +578,7 @@ class Ui_MainWindow(object):
         self.actionIniciar.setObjectName(_fromUtf8("actionIniciar"))
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(3)
         self.cbTimerStartCond.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 

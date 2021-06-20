@@ -329,6 +329,7 @@ class ProcessController(object):
         self.update_stage_status_to_ui()
         self.timer.start( (self.interval / 2) * 1000)
         self.timer_state = TimerState.RUNNING
+        self.plot_control.start()
         
     
     def stop(self):
@@ -336,6 +337,7 @@ class ProcessController(object):
         reply = QMessageBox.question(None, 'Parar o processo', 'Tem certeza que deseja parar o processo?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.No: return
         self.timer.stop()
+        self.plot_control.stop()
         self.ser.disconnect()
         self.set_current_stage_status(u'Processo concluído')
         self.update_stage_status_to_ui()
@@ -348,6 +350,8 @@ class ProcessController(object):
         self.set_current_stage_status(u'Processo pausado')
         self.update_stage_status_to_ui()
         self.timer.stop()
+        self.plot_control.stop()
+
 
     def goto_prev_stage(self):
         if self.current_stage == 0: return
