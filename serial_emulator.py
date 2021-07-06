@@ -77,6 +77,8 @@ class SerialInterface(object):
         self.SYNC_CODE_RCV = 0x2211
         self.is_connected = False
         self.connect_attemps = 100
+        self.x = 20.0
+        self.inc = .4
 
         
         
@@ -88,7 +90,12 @@ class SerialInterface(object):
         return True
     
     def receive(self):
-        return (0, 0, 20.0)
+        v = (0, 0, self.x)
+        self.x += self.inc
+        if (self.x >= 30.0) and (self.inc > 0): self.inc = -self.inc
+        if (self.x <= 20.0) and (self.inc < 0): self.inc = -self.inc
+        return v
+
     
     def disconnect(self):
         self.is_connected = False

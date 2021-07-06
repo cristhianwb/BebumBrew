@@ -23,15 +23,16 @@ class PlotControl(object):
             'pump_power': []
         }
 
+        #minimun window size
+        self.min_window_size = 10
 
         self.set_button_color(ui.pushPumpColor, 'blue')
         self.set_button_color(ui.pushHeaterColor, 'red')
         self.set_button_color(ui.pushSensor1Color, 'green')
         self.set_button_color(ui.pushSensor2Color, 'yellow')
 
-        self.zoom = 1.0
-        self.plot_pos = 0.0
-        self.window_size = 20
+        self.zoom = 1
+        self.window_size = self.min_window_size
         self.window_count = 1
         #ui treatments
         self.ui = ui
@@ -45,6 +46,7 @@ class PlotControl(object):
         ax.set_ylim(0, 110)
         ax.set_xlabel('Tempo (s)')
         ax.set_ylabel(u'Temperatura (º)')
+        self.ax.set_xlim(0, self.min_window_size)
         ax2 = ax.twinx()
         ax2.set_ylim(0,100)
         ax2.set_ylabel(u'Potência (%)')
@@ -111,13 +113,10 @@ class PlotControl(object):
 
     def set_window_size(self):
         sensor1 = self.data['sensor1']
-        count = float(len(sensor1))
-        window_size = int((count / 100.0) * (100.0 - self.zoom))
-        self.window_size = window_size if window_size > 0 else 1
-        wx_0 = (self.ui.plotPosScroll.value() * self.window_size)
-        wx_1 = wx_0 + self.window_size
-        #print "wsize: %f, wcount: %d, w0: %f, w1: %f" % (self.window_size, self.window_count, wx_0, wx_1)
-        self.ax.set_xlim(wx_0, wx_1)
+        count = len(sensor1)
+        self.window_size = count / self.zoom
+
+        
         
     def set_button_color(self, wich_button, color = None):
         xcolor = QColor(color) if color is not None else QColorDialog.getColor()
@@ -135,19 +134,29 @@ class PlotControl(object):
         pump_power = self.data['pump_power']
         pump_power.append(int(float(p_power) / 255.0 * 100))
         
-        if self.ui.chkAutoScroll.isChecked() and (self.window_count == 1):
-            self.set_window_size()
+        #if self.ui.chkAutoScroll.isChecked() and (self.window_count == 1):
+        #    self.set_window_size()
         
         count = len(sensor1)
-        window_count = int(float(count) / self.window_size)
-        self.window_count = window_count if window_count > 0 else 1
-        self.ui.plotPosScroll.setMaximum(self.window_count-1)
+        print('count: ', count)
+        window_count = int(count / self.window_size) + ( (count % self.window_size) > 0)
+        self.ui.plotPosScroll.setMaximum(window_count)
+        print('w_count', window_count)
         if self.ui.chkAutoScroll.isChecked(): 
-            self.ui.plotPosScroll.setValue(self.window_count-1)
+            self.ui.plotPosScroll.setValue(window_count)
+            print('Aqui tinha que ter setado o valor dessa porra')
+
         
+        self.ui.zoomSlider.setMaximum(count / self.min_window_size)
+
+        print('w_size: ', self.window_size, 'pos_scroll', self.ui.plotPosScroll.value())
+        wx_1 = self.window_size * self.ui.plotPosScroll.value()
+        wx_0 = (wx_1 - self.window_size)
+        print('x0:', wx_0, 'x1:', wx_1)
+        self.ax.set_xlim(wx_0, wx_1)
 
     def zoom_changed(self, value):
-        self.zoom = float(value)
+        self.zoom = value
         self.set_window_size()
 
     
