@@ -12,6 +12,7 @@ from simple_pid import PID
 from serial_emulator import * #and for testing use this
 from plot import *
 import time
+import os
 #from enum import Enum
 
 class TimerState():
@@ -57,7 +58,9 @@ class TableControlStages(object):
     def bt_save_clicked(self):
         fname = unicode(QFileDialog.getSaveFileName(caption='Salvar arquivo de processo',filter='Arquivo de processo (*.prc)'))
         if (fname == u''): return
-        f = io.open(fname + u'.prc', "w",encoding="utf-8")
+        fname, ext = os.path.splitext(fname)
+        if (ext == ''): ext = 'prc'
+        f = io.open(fname + '.' + '.prc', "w", encoding="utf-8")
         f.write(json.dumps(self.tbmodel_Stages.rows, ensure_ascii=False,indent=2))
         f.close()
         
@@ -92,25 +95,25 @@ class TableControlStages(object):
             self.ui.tabWidget.setTabText(2, u'Selecione uma Etapa...')
             self.ui.tabWidget.setTabEnabled(2, False)
         
-class TableControlIngridients(object):
-    def __init__(self, ui):
-        self.tbmodel_Ingridients = DictTableModel([u"stage_name"])
-        self.tbmodel_Ingridients.header[u"stage_name"] = u'Estágio'
-        self.ui = ui
-        self.ui.tableView_Ingridients.setModel(self.tbmodel_Ingridients)
-        self.ui.btAdd_2.clicked.connect(self.bt_add_clicked)
-        self.ui.btRemove_2.clicked.connect(self.bt_remove_clicked)
+# class TableControlIngridients(object):
+#     def __init__(self, ui):
+#         self.tbmodel_Ingridients = DictTableModel([u"stage_name"])
+#         self.tbmodel_Ingridients.header[u"stage_name"] = u'Estágio'
+#         self.ui = ui
+#         self.ui.tableView_Ingridients.setModel(self.tbmodel_Ingridients)
+#         self.ui.btAdd_2.clicked.connect(self.bt_add_clicked)
+#         self.ui.btRemove_2.clicked.connect(self.bt_remove_clicked)
         
-    def bt_add_clicked(self):
-        self.tbmodel_Ingridients.add()
+#     def bt_add_clicked(self):
+#         self.tbmodel_Ingridients.add()
         
-    def bt_remove_clicked(self):
-        selected = self.ui.tableView_Ingridients.selectedIndexes()
-        if len(selected) == 0:
-            return
-        first_row = selected[0].row()
-        rows = selected[-1].row() - first_row + 1
-        self.tbmodel_Ingridients.removeRows(first_row, rows)
+#     def bt_remove_clicked(self):
+#         selected = self.ui.tableView_Ingridients.selectedIndexes()
+#         if len(selected) == 0:
+#             return
+#         first_row = selected[0].row()
+#         rows = selected[-1].row() - first_row + 1
+#         self.tbmodel_Ingridients.removeRows(first_row, rows)
 
 
 class ProcessController(object):
@@ -381,7 +384,7 @@ if __name__ == "__main__":
     tableControlStages.set_PIDControl(pidControl)
     tableControlStages.set_PumpControl(pumpControl)
     tableControlStages.set_TimerControl(TimerControl(ui, tbmodel_Stages))
-    tableControlIngridients = TableControlIngridients(ui)
+    #tableControlIngridients = TableControlIngridients(ui)
     processController = ProcessController(ui, tbmodel_Stages)
     MainWindow.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
     MainWindow.setWindowState(QtCore.Qt.WindowMaximized) 

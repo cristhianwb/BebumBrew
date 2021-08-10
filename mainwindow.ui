@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>699</width>
-    <height>495</height>
+    <width>711</width>
+    <height>523</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -649,22 +649,49 @@
            </item>
            <item row="1" column="1">
             <widget class="QDoubleSpinBox" name="PField">
+             <property name="decimals">
+              <number>4</number>
+             </property>
+             <property name="minimum">
+              <double>-1000.000000000000000</double>
+             </property>
              <property name="maximum">
               <double>1000.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.001000000000000</double>
              </property>
             </widget>
            </item>
            <item row="2" column="1">
             <widget class="QDoubleSpinBox" name="IField">
+             <property name="decimals">
+              <number>4</number>
+             </property>
+             <property name="minimum">
+              <double>-1000.000000000000000</double>
+             </property>
              <property name="maximum">
               <double>1000.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.001000000000000</double>
              </property>
             </widget>
            </item>
            <item row="3" column="1">
             <widget class="QDoubleSpinBox" name="DField">
+             <property name="decimals">
+              <number>4</number>
+             </property>
+             <property name="minimum">
+              <double>-1000.000000000000000</double>
+             </property>
              <property name="maximum">
               <double>1000.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.001000000000000</double>
              </property>
             </widget>
            </item>
@@ -894,7 +921,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>659</width>
+             <width>671</width>
              <height>70</height>
             </rect>
            </property>
@@ -953,7 +980,20 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_9">
               <item>
+               <widget class="QCheckBox" name="chkAdjToScreen">
+                <property name="text">
+                 <string>Ajustar à tela</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QLabel" name="testLabel">
+                <property name="font">
+                 <font>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
                 <property name="text">
                  <string>Zoom</string>
                 </property>
@@ -999,8 +1039,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>646</width>
-             <height>88</height>
+             <width>671</width>
+             <height>86</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1012,7 +1052,7 @@
               <item row="0" column="0">
                <widget class="QCheckBox" name="chkSensor1Line">
                 <property name="text">
-                 <string>Senor 1 Temperatura</string>
+                 <string>Sensor 1 Temperatura</string>
                 </property>
                </widget>
               </item>
@@ -1132,67 +1172,6 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tabIngridients">
-       <attribute name="title">
-        <string>Ingredientes</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_4">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QToolButton" name="btAdd_2">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset>
-              <normalon>:/Icons/Icons/add.png</normalon>
-             </iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="btRemove_2">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset>
-              <normalon>:/Icons/Icons/del.png</normalon>
-             </iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QTableView" name="tableView_Ingridients">
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
      </widget>
     </item>
    </layout>
@@ -1202,8 +1181,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>699</width>
-     <height>22</height>
+     <width>711</width>
+     <height>30</height>
     </rect>
    </property>
   </widget>

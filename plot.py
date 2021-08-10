@@ -133,26 +133,25 @@ class PlotControl(object):
         heater_power.append(power)
         pump_power = self.data['pump_power']
         pump_power.append(int(float(p_power) / 255.0 * 100))
-        
-        #if self.ui.chkAutoScroll.isChecked() and (self.window_count == 1):
-        #    self.set_window_size()
-        
+             
         count = len(sensor1)
-        print('count: ', count)
+        if self.ui.chkAdjToScreen.isChecked():
+            self.zoom = 1
+            self.set_window_size()
+
         window_count = int(count / self.window_size) + ( (count % self.window_size) > 0)
         self.ui.plotPosScroll.setMaximum(window_count)
-        print('w_count', window_count)
+        #print('w_count', window_count)
         if self.ui.chkAutoScroll.isChecked(): 
             self.ui.plotPosScroll.setValue(window_count)
-            print('Aqui tinha que ter setado o valor dessa porra')
 
         
         self.ui.zoomSlider.setMaximum(count / self.min_window_size)
 
-        print('w_size: ', self.window_size, 'pos_scroll', self.ui.plotPosScroll.value())
+        #print('w_size: ', self.window_size, 'pos_scroll', self.ui.plotPosScroll.value())
         wx_1 = self.window_size * self.ui.plotPosScroll.value()
         wx_0 = (wx_1 - self.window_size)
-        print('x0:', wx_0, 'x1:', wx_1)
+        #print('x0:', wx_0, 'x1:', wx_1)
         self.ax.set_xlim(wx_0, wx_1)
 
     def zoom_changed(self, value):
