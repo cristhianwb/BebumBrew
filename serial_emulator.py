@@ -65,6 +65,7 @@ class SerialInterface(object):
         self.heater_power = 0
         self.pump_power = 0
         self.temp = 0
+        self.temp2 = 0
         self.port = port
         self.baud = baud
         self.conn = None
@@ -90,7 +91,7 @@ class SerialInterface(object):
         return True
     
     def receive(self):
-        v = (0, 0, self.x)
+        v = (0, 0, self.x, self.x + 5)
         self.x += self.inc
         if (self.x >= 30.0) and (self.inc > 0): self.inc = -self.inc
         if (self.x <= 20.0) and (self.inc < 0): self.inc = -self.inc
@@ -122,13 +123,14 @@ class SerialInterface(object):
         else:
             self.state = ST.SEND
             rcv = self.receive()
+            print '#####', rcv
             if rcv is None:
                 self.rcv_status = False
                 self.current_error_count += 1
                 return False
             else:
                 self.rcv_status = True
-                a, b , self.temp = rcv
+                a, b , self.temp, self.temp2 = rcv
             
             return True
     

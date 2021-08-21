@@ -65,6 +65,7 @@ class PlotControl(object):
         ui.pushSensor2Color.clicked.connect(lambda: self.set_button_color(ui.pushSensor2Color))
         
         ui.chkSensor1Line.clicked.connect(lambda x: self.sensor1_line.set_visible(x))
+        ui.chkSensor2Line.clicked.connect(lambda x: self.sensor2_line.set_visible(x))
         ui.chkPumpLine.clicked.connect(lambda x: self.pump_power_line.set_visible(x))
         ui.chkHeaterLine.clicked.connect(lambda x: self.heater_power_line.set_visible(x))
 
@@ -90,6 +91,12 @@ class PlotControl(object):
         self.sensor1_line, = self.ax.plot([], [], color = color)
         self.sensor1_line.set_visible(self.ui.chkSensor1Line.isChecked())
 
+        #sensor 2 line
+        color = self.ui.pushSensor2Color.palette().color(QPalette.Background)
+        color = rgb_from_qcolor(color)
+        self.sensor2_line, = self.ax.plot([], [], color = color)
+        self.sensor2_line.set_visible(self.ui.chkSensor2Line.isChecked())
+
         #heater power line
         color = self.ui.pushHeaterColor.palette().color(QPalette.Background)
         color = rgb_from_qcolor(color)
@@ -106,9 +113,10 @@ class PlotControl(object):
 
     def update(self):
         self.sensor1_line.set_data(range(len(self.data['sensor1'])), self.data['sensor1'])
+        self.sensor2_line.set_data(range(len(self.data['sensor2'])), self.data['sensor2'])
         self.heater_power_line.set_data(range(len(self.data['heater_power'])), self.data['heater_power'])
         self.pump_power_line.set_data(range(len(self.data['pump_power'])), self.data['pump_power'])
-        return self.sensor1_line, self.heater_power_line, self.pump_power_line
+        return self.sensor1_line, self.sensor2_line, self.heater_power_line, self.pump_power_line
 
 
     def set_window_size(self):
@@ -126,9 +134,11 @@ class PlotControl(object):
         return rgb_from_qcolor(QColor(xcolor))
 
 
-    def plot(self, temp1, power, p_power):
+    def plot(self, temp1, temp2, power, p_power):
         sensor1 = self.data['sensor1']
+        sensor2 = self.data['sensor2']
         sensor1.append(temp1)
+        sensor2.append(temp2)
         heater_power = self.data['heater_power']
         heater_power.append(power)
         pump_power = self.data['pump_power']

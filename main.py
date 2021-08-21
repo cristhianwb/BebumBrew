@@ -132,7 +132,8 @@ class ProcessController(object):
         self.output = 0
         self.pump_power = 0
         self.setpoint = 0
-        self.temp = 60
+        self.temp = 0
+        self.temp2 = 0
         self.model = model
         self.interval = sampling_interval
         self.pid = PID(0.0, 0.0, 0.0, setpoint=0.0, sample_time=sampling_interval, output_limits=(0, 100), auto_mode=False, proportional_on_measurement=False)
@@ -164,6 +165,9 @@ class ProcessController(object):
         
         if self.ser.temp != -127:
             self.temp = self.ser.temp
+
+        if self.ser.temp2 != -127:
+            self.temp2 = self.ser.temp2
         
         print 'temp:', self.temp
 
@@ -191,7 +195,7 @@ class ProcessController(object):
             self.output = self.pid(self.temp)
         
         self.update_outputs_to_ui()
-        self.plot_control.plot(self.temp, self.output, self.pump_power)
+        self.plot_control.plot(self.temp, self.temp2, self.output, self.pump_power)
     
     def reset_timers(self, process_start):
         self.stage_start_time = QTime.currentTime()
@@ -270,6 +274,9 @@ class ProcessController(object):
         tempStr = u'%.2f º' % (self.temp,)
         self.ui.labelTemp.setText(tempStr)
         self.ui.lbTemp.setText(tempStr)
+        tempStr = u'%.2f º' % (self.temp2,)
+        self.ui.labelTemp2.setText(tempStr)
+        self.ui.lbTemp2.setText(tempStr)
         setpointStr = u'%.1f º' % (self.setpoint,)
         self.ui.lbSetPoint.setText(setpointStr)
         self.ui.lbStageTimeElapsed.setText(self.stage_time_elapsed.toString())

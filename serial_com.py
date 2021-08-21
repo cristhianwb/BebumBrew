@@ -65,6 +65,7 @@ class SerialInterface(object):
         self.heater_power = 0
         self.pump_power = 0
         self.temp = 0
+        self.temp2 = 0
         self.port = port
         self.baud = baud
         self.conn = None
@@ -124,7 +125,7 @@ class SerialInterface(object):
             #if the sender is out of sync it will not send -10.10 and then the receveiver
             #discards the packet end start a new synchronization process
 
-            bytes_to_send = pack('iif3x',ht_power, pmp_power, 0 if self.is_connected else -1)
+            bytes_to_send = pack('iiff7x',ht_power, pmp_power, 0 if self.is_connected else -1)
             bytes_to_send = bytearray(bytes_to_send)
             check_sum = self.crc.calculate(bytes_to_send)
             bytes_to_send.append(check_sum)
@@ -140,9 +141,9 @@ class SerialInterface(object):
             rcv = self.conn.read(16)
             if len(rcv) != 16:
                 raise Exception('Eperando receber 16 bytes porem foram recebidos %d' % (len(rcv),))
-            a, b, temp, check_sum =  unpack('iif3xB', rcv)
+            a, b, temp, temp2, check_sum =  unpack('iiff3xB', rcv)
             if ( self.crc.calculate(bytearray(rcv[0:-1])) == check_sum ):
-                return (a, b, temp)
+                return (a, b, temp, temp2)
             else:
                 raise Exception('Erro no CRC, esperado %h encontrado %h' % (self.crc.calculate(bytearray(rcv[0:-1])) , check_sum) )
         except Exception as e:
@@ -182,7 +183,7 @@ class SerialInterface(object):
                 return False
             else:
                 self.rcv_status = True
-                a, b , self.temp = rcv
+                a, b , self.temp, self.temp2 = rcv
             
             return True
     

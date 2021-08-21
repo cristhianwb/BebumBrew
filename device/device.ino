@@ -21,6 +21,7 @@ typedef struct _packet{
   long heater_power;
   long pump_power;
   double temp;
+  double temp2;
   uint8_t pad[3];
   crc crc_code;
 } packet;
@@ -29,7 +30,7 @@ typedef struct _packet{
 OneWire oneWire(ONE_WIRE_BUS);
 Dimmer heater(3);
 DallasTemperature sensors(&oneWire);
-DeviceAddress sensor1;
+DeviceAddress sensor1, sensor2;
 double last_temp = 0;
 long heater_power = 0;
 int error_count = ERRORS_ALLOWED; /*number of consecutive erros allowed*/
@@ -42,7 +43,8 @@ void setup(){
   sensors.begin();
   sensors.setWaitForConversion(false);
   pinMode(6, OUTPUT);
-  sensors.getAddress(sensor1, 0); 
+  sensors.getAddress(sensor1, 0);
+  sensors.getAddress(sensor2, 1); 
   sensors.requestTemperatures();
   heater.begin();
     
@@ -97,7 +99,10 @@ void loop(){
           }
           analogWrite(6, pkt.pump_power);
           memset(&pkt, 0, 16);
-          pkt.temp = sensors.isConversionComplete() ? sensors.getTempC(sensor1) : 0;
+          if (sensors.isConversionComplete()){
+            pkt.temp = sensors.getTempC(sensor1);
+            pkt.temp2 = sensors.getTempC(sensor2);
+          }
           sensors.requestTemperatures();
           pkt.crc_code = crcFast((byte*) &pkt, sizeof(packet) - sizeof(crc) );
           //Reset the error counter
