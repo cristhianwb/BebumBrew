@@ -62,7 +62,7 @@ class PlotControl(object):
         ui.pushPumpColor.clicked.connect(lambda: self.pump_power_line.set_color(self.set_button_color(ui.pushPumpColor)))
         ui.pushHeaterColor.clicked.connect(lambda: self.heater_power_line.set_color(self.set_button_color(ui.pushHeaterColor)))
         ui.pushSensor1Color.clicked.connect(lambda: self.sensor1_line.set_color(self.set_button_color(ui.pushSensor1Color)))
-        ui.pushSensor2Color.clicked.connect(lambda: self.set_button_color(ui.pushSensor2Color))
+        ui.pushSensor2Color.clicked.connect(lambda: self.sensor2_line.set_color(self.set_button_color(ui.pushSensor2Color)))
         
         ui.chkSensor1Line.clicked.connect(lambda x: self.sensor1_line.set_visible(x))
         ui.chkSensor2Line.clicked.connect(lambda x: self.sensor2_line.set_visible(x))

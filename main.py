@@ -124,6 +124,7 @@ class ProcessController(object):
         self.ui.btPause.clicked.connect(self.pause)
         self.ui.btPrev.clicked.connect(self.goto_prev_stage)
         self.ui.btNext.clicked.connect(self.goto_next_stage)
+        self.ui.tabWidget.currentChanged.connect(self.tabChanged)
         self.timer = QTimer()
         self.timer_state = TimerState.STOPPED        
         self.current_stage = 0
@@ -376,6 +377,9 @@ class ProcessController(object):
                     u'Todas informações do estágio atual serão perdidas', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes: 
             self.next_stage = self.current_stage + 1    
+
+    def tabChanged(self, index):
+        pass
 
 
 if __name__ == "__main__":
