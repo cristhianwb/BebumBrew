@@ -39,7 +39,7 @@ class PlotControl(object):
         self.figure = plt.figure()
         self.canvas = FigureCanvas(self.figure)
         layout = ui.tabPlotLay
-        layout.insertWidget(0, self.canvas)
+        layout.addWidget(self.canvas)
 
         ax = self.figure.add_subplot(111)
         self.ax = ax
