@@ -710,7 +710,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Próxima etapa</string>
+                  <string>Próx. etapa</string>
                  </property>
                 </widget>
                </item>
@@ -762,7 +762,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Tempo decorrido</string>
+                  <string>T. decorrido</string>
                  </property>
                 </widget>
                </item>
@@ -788,7 +788,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Tempo de timer</string>
+                  <string>Timer</string>
                  </property>
                 </widget>
                </item>
@@ -814,7 +814,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Tempo restante</string>
+                  <string>T. restante</string>
                  </property>
                 </widget>
                </item>
@@ -840,7 +840,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Temp. sensor 1</string>
+                  <string>Temp. 1</string>
                  </property>
                 </widget>
                </item>
@@ -892,7 +892,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Potência aquec.</string>
+                  <string>Pot. aquec.</string>
                  </property>
                 </widget>
                </item>
@@ -918,7 +918,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Potência bomba</string>
+                  <string>Pot. bomba</string>
                  </property>
                 </widget>
                </item>
@@ -944,7 +944,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Temp. sensor 2</string>
+                  <string>Temp. 2</string>
                  </property>
                 </widget>
                </item>
