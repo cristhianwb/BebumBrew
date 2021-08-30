@@ -20,6 +20,8 @@ class TimerState():
     RUNNING = 1
     PAUSED  = 2
 
+
+
 class TableControlStages(object):
     def __init__(self, ui, model):
         self.tbmodel_Stages = model
@@ -37,8 +39,8 @@ class TableControlStages(object):
         self.ui.btRemove.clicked.connect(self.bt_remove_clicked)
         self.ui.btSave.clicked.connect(self.bt_save_clicked)
         self.ui.btLoad.clicked.connect(self.bt_load_clicked)
-        self.ui.tabWidget.setTabText(2, u'Selecione uma Etapa...')
-        self.ui.tabWidget.setTabEnabled(2, False)
+        self.ui.tabWidget.setTabText(1, u'Selecione uma Etapa...')
+        self.ui.tabWidget.setTabEnabled(1, False)
         self.ui.tableView_Stages.resizeColumnsToContents()
 
     def bt_add_clicked(self):
@@ -89,11 +91,11 @@ class TableControlStages(object):
         self.pump_control.set_row(selected)
         self.timer_control.set_row(selected)
         if selected != -1:    
-            self.ui.tabWidget.setTabText(2, u'Etapa %d - ' % (selected+1,) + self.tbmodel_Stages.get_field(selected, u'stage_name'))
-            self.ui.tabWidget.setTabEnabled(2, True)
+            self.ui.tabWidget.setTabText(1, u'Etapa %d - ' % (selected+1,) + self.tbmodel_Stages.get_field(selected, u'stage_name'))
+            self.ui.tabWidget.setTabEnabled(1, True)
         else:
-            self.ui.tabWidget.setTabText(2, u'Selecione uma Etapa...')
-            self.ui.tabWidget.setTabEnabled(2, False)
+            self.ui.tabWidget.setTabText(1, u'Selecione uma Etapa...')
+            self.ui.tabWidget.setTabEnabled(1, False)
         
 # class TableControlIngridients(object):
 #     def __init__(self, ui):
