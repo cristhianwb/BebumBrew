@@ -632,7 +632,7 @@
               <x>0</x>
               <y>0</y>
               <width>657</width>
-              <height>396</height>
+              <height>377</height>
              </rect>
             </property>
             <attribute name="label">
@@ -648,10 +648,10 @@
                 <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
                </property>
                <property name="leftMargin">
-                <number>20</number>
+                <number>0</number>
                </property>
                <property name="topMargin">
-                <number>20</number>
+                <number>0</number>
                </property>
                <item row="0" column="0">
                 <widget class="QLabel" name="label">

@@ -98,7 +98,7 @@ void loop(){
             heater_power = pkt.heater_power;
           }
           analogWrite(6, pkt.pump_power);
-          memset(&pkt, 0, 16);
+          memset(&pkt, 0, sizeof(packet));
           if (sensors.isConversionComplete()){
             pkt.temp = sensors.getTempC(sensor1);
             pkt.temp2 = sensors.getTempC(sensor2);

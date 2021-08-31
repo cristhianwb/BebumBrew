@@ -103,7 +103,7 @@ class SerialInterface(object):
                 rcv = self.receive()
                 if rcv == None:
                     raise Exception()
-                a, b, c = rcv
+                a, b, c, d = rcv
                 print 'Finnishing handshake'
                 if b == self.SYNC_CODE_RCV:
                     self.send(0, self.SYNC_CODE)
@@ -125,7 +125,7 @@ class SerialInterface(object):
             #if the sender is out of sync it will not send -10.10 and then the receveiver
             #discards the packet end start a new synchronization process
 
-            bytes_to_send = pack('iiff7x',ht_power, pmp_power, 0 if self.is_connected else -1)
+            bytes_to_send = pack('iif7x',ht_power, pmp_power, 0 if self.is_connected else -1)
             bytes_to_send = bytearray(bytes_to_send)
             check_sum = self.crc.calculate(bytes_to_send)
             bytes_to_send.append(check_sum)
@@ -138,8 +138,8 @@ class SerialInterface(object):
     
     def receive(self):
         try:
-            rcv = self.conn.read(16)
-            if len(rcv) != 16:
+            rcv = self.conn.read(20)
+            if len(rcv) != 20:
                 raise Exception('Eperando receber 16 bytes porem foram recebidos %d' % (len(rcv),))
             a, b, temp, temp2, check_sum =  unpack('iiff3xB', rcv)
             if ( self.crc.calculate(bytearray(rcv[0:-1])) == check_sum ):

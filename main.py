@@ -8,8 +8,8 @@ from model import DictTableModel
 import json
 import io
 from simple_pid import PID
-#from serial_com import * #for functioning with device use this
-from serial_emulator import * #and for testing use this
+from serial_com import * #for functioning with device use this
+#from serial_emulator import * #and for testing use this
 from plot import *
 import time
 import os
@@ -72,6 +72,7 @@ class TableControlStages(object):
         f = io.open(fname, "r",encoding="utf-8")
         self.tbmodel_Stages.load(json.loads(f.read()))
         f.close()
+        self.ui.tableView_Stages.resizeColumnsToContents();
     
     def set_PIDControl(self, p_control):
         self.p_control = p_control
