@@ -20,7 +20,8 @@ class PlotControl(object):
             'sensor1': [],
             'sensor2': [],
             'heater_power': [],
-            'pump_power': []
+            'pump_power': [],
+            'setpoint': []
         }
 
         #minimun window size
@@ -30,6 +31,7 @@ class PlotControl(object):
         self.set_button_color(ui.pushHeaterColor, 'red')
         self.set_button_color(ui.pushSensor1Color, 'green')
         self.set_button_color(ui.pushSensor2Color, 'yellow')
+        self.set_button_color(ui.pushSetpointColor,'orange')
 
         self.zoom = 1
         self.window_size = self.min_window_size
@@ -63,11 +65,17 @@ class PlotControl(object):
         ui.pushHeaterColor.clicked.connect(lambda: self.heater_power_line.set_color(self.set_button_color(ui.pushHeaterColor)))
         ui.pushSensor1Color.clicked.connect(lambda: self.sensor1_line.set_color(self.set_button_color(ui.pushSensor1Color)))
         ui.pushSensor2Color.clicked.connect(lambda: self.sensor2_line.set_color(self.set_button_color(ui.pushSensor2Color)))
+        ui.pushSetpointColor.clicked.connect(lambda: self.sensor2_line.set_color(self.set_button_color(ui.pushSetpointColor)))
         
         ui.chkSensor1Line.clicked.connect(lambda x: self.sensor1_line.set_visible(x))
         ui.chkSensor2Line.clicked.connect(lambda x: self.sensor2_line.set_visible(x))
         ui.chkPumpLine.clicked.connect(lambda x: self.pump_power_line.set_visible(x))
         ui.chkHeaterLine.clicked.connect(lambda x: self.heater_power_line.set_visible(x))
+        ui.chkSetpointLine.clicked.connect(lambda x: self.set_vis(x))
+
+    def set_vis(self, x):
+        self.setpoint_line.set_visible(x)
+
 
     def start(self):
         if self.ani is None:
@@ -109,14 +117,22 @@ class PlotControl(object):
         self.pump_power_line, = self.ax.plot([], [], color = color)
         self.pump_power_line.set_visible(self.ui.chkPumpLine.isChecked())
 
-        return self.sensor1_line, self.heater_power_line, self.pump_power_line      
+        #setpoint line
+        color = self.ui.pushSetpointColor.palette().color(QPalette.Background)
+        color = rgb_from_qcolor(color)
+        self.setpoint_line, = self.ax.plot([], [], color = color)
+        self.setpoint_line.set_visible(self.ui.chkSetpointLine.isChecked())
+
+
+        return self.sensor1_line, self.sensor2_line, self.heater_power_line, self.setpoint_line, self.pump_power_line, 
 
     def update(self):
         self.sensor1_line.set_data(range(len(self.data['sensor1'])), self.data['sensor1'])
         self.sensor2_line.set_data(range(len(self.data['sensor2'])), self.data['sensor2'])
         self.heater_power_line.set_data(range(len(self.data['heater_power'])), self.data['heater_power'])
         self.pump_power_line.set_data(range(len(self.data['pump_power'])), self.data['pump_power'])
-        return self.sensor1_line, self.sensor2_line, self.heater_power_line, self.pump_power_line
+        self.setpoint_line.set_data(range(len(self.data['setpoint'])), self.data['setpoint'])
+        return self.sensor1_line, self.sensor2_line, self.heater_power_line,  self.setpoint_line, self.pump_power_line,
 
 
     def set_window_size(self):
@@ -134,15 +150,17 @@ class PlotControl(object):
         return rgb_from_qcolor(QColor(xcolor))
 
 
-    def plot(self, temp1, temp2, power, p_power):
+    def plot(self, temp1, temp2, power, p_power, xsetpoint):
         sensor1 = self.data['sensor1']
         sensor2 = self.data['sensor2']
-        sensor1.append(temp1)
-        sensor2.append(temp2)
+        setpoint = self.data['setpoint']
         heater_power = self.data['heater_power']
-        heater_power.append(power)
         pump_power = self.data['pump_power']
+        sensor1.append(temp1)
+        sensor2.append(temp2)        
+        heater_power.append(power)        
         pump_power.append(int(float(p_power) / 255.0 * 100))
+        setpoint.append(xsetpoint)
              
         count = len(sensor1)
         if self.ui.chkAdjToScreen.isChecked():

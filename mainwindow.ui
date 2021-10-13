@@ -969,14 +969,22 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>280</width>
-              <height>158</height>
+              <width>671</width>
+              <height>324</height>
              </rect>
             </property>
             <attribute name="label">
              <string>Propriedades das linhas</string>
             </attribute>
-            <widget class="QWidget" name="">
+            <widget class="QWidget" name="layoutWidget">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>323</width>
+               <height>176</height>
+              </rect>
+             </property>
              <layout class="QFormLayout" name="formLayout_6">
               <property name="rightMargin">
                <number>20</number>
@@ -1076,10 +1084,38 @@
                 </property>
                </widget>
               </item>
+              <item row="4" column="0">
+               <widget class="QCheckBox" name="chkSetpointLine">
+                <property name="text">
+                 <string>Setpoint</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QPushButton" name="pushSetpointColor">
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </widget>
            <widget class="QWidget" name="PageChartPos">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>164</width>
+              <height>126</height>
+             </rect>
+            </property>
             <attribute name="label">
              <string>Posição do gráfico</string>
             </attribute>

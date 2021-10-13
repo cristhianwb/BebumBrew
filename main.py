@@ -199,7 +199,7 @@ class ProcessController(object):
             self.output = self.pid(self.temp)
         
         self.update_outputs_to_ui()
-        self.plot_control.plot(self.temp, self.temp2, self.output, self.pump_power)
+        self.plot_control.plot(self.temp, self.temp2, self.output, self.pump_power, self.setpoint)
     
     def reset_timers(self, process_start):
         self.stage_start_time = QTime.currentTime()
