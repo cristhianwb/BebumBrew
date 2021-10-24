@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from mainwindow import *
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -167,7 +168,7 @@ class ProcessController(object):
         if not self.ser.process():
             return
         
-        if self.ser.temp != -127:
+        if ((self.ser.temp != -127) and (self.ser.temp != 0)):
             self.temp = self.ser.temp
 
         if self.ser.temp2 != -127:
@@ -286,13 +287,14 @@ class ProcessController(object):
         self.ui.lbStageTimeElapsed.setText(self.stage_time_elapsed.toString())
         self.ui.lbTimerTimeElapsed.setText(self.timer_time_elapsed.toString())
         self.ui.lbTimerTimeRemaining.setText(self.timer_time_remaining.toString())
-        self.model.set_field(self.current_stage, u'stage_time_elapsed',self.stage_time_elapsed.toString())
-        self.model.set_field(self.current_stage, u'timer_time_elapsed',self.timer_time_elapsed.toString())
-        self.model.set_field(self.current_stage, u'timer_time_remaining',self.timer_time_remaining.toString())
+        self.model.set_field(self.current_stage, u'stage_time_elapsed', str(self.stage_time_elapsed.toString()))
+        self.model.set_field(self.current_stage, u'timer_time_elapsed', str(self.timer_time_elapsed.toString()))
+        self.model.set_field(self.current_stage, u'timer_time_remaining', str(self.timer_time_remaining.toString()))
 
 
     def get_pid_control_changed(self):
         changed = self.model.row_data(self.current_stage)[u'PID'].get(u'changed')
+        print 'pid changed: ', changed
         if changed:
             self.model.row_data(self.current_stage)[u'PID'][u'changed'] = False
             return True

@@ -71,11 +71,7 @@ class PlotControl(object):
         ui.chkSensor2Line.clicked.connect(lambda x: self.sensor2_line.set_visible(x))
         ui.chkPumpLine.clicked.connect(lambda x: self.pump_power_line.set_visible(x))
         ui.chkHeaterLine.clicked.connect(lambda x: self.heater_power_line.set_visible(x))
-        ui.chkSetpointLine.clicked.connect(lambda x: self.set_vis(x))
-
-    def set_vis(self, x):
-        self.setpoint_line.set_visible(x)
-
+        ui.chkSetpointLine.clicked.connect(lambda x: setpoint_line.set_visible(x))
 
     def start(self):
         if self.ani is None:
