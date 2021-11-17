@@ -4,120 +4,25 @@ from mainwindow import *
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 #from PyQt4.QtWidgets import QMessageBox
-from pid import PIDControl, PumpControl, TimerControl
+from pid import PIDControl
+from timer import TimerControl
+from pump import PumpControl
 from model import DictTableModel
-import json
-import io
 from simple_pid import PID
 from serial_com import * #for functioning with device use this
 #from serial_emulator import * #and for testing use this
 from plot import *
 import time
 import os
+from ingridients import *
+from stages import *
+
 #from enum import Enum
 
 class TimerState():
     STOPPED = 0
     RUNNING = 1
     PAUSED  = 2
-
-
-
-class TableControlStages(object):
-    def __init__(self, ui, model):
-        self.tbmodel_Stages = model
-        model.table = ui.tableView_Stages
-        self.tbmodel_Stages.header[u'stage_name'] = u'Estágio'
-        self.tbmodel_Stages.header[u'stage_status'] = u'Estado de exec.'
-
-        self.tbmodel_Stages.header[u'stage_time_elapsed'] = u'Tempo decorrido'
-        self.tbmodel_Stages.header[u'timer_time_elapsed'] = u'Tempo dec. timer'
-        self.tbmodel_Stages.header[u'timer_time_remaining'] = u'Tempo rest. timer'
-        self.ui = ui
-        self.ui.tableView_Stages.setModel(self.tbmodel_Stages)
-        self.ui.tableView_Stages.selectionModel().selectionChanged.connect(self.selectionChanged)
-        self.ui.btAdd.clicked.connect(self.bt_add_clicked)
-        self.ui.btRemove.clicked.connect(self.bt_remove_clicked)
-        self.ui.btSave.clicked.connect(self.bt_save_clicked)
-        self.ui.btLoad.clicked.connect(self.bt_load_clicked)
-        self.ui.tabWidget.setTabText(1, u'Selecione uma Etapa...')
-        self.ui.tabWidget.setTabEnabled(1, False)
-        self.ui.tableView_Stages.resizeColumnsToContents()
-
-    def bt_add_clicked(self):
-        self.tbmodel_Stages.add()
-    
-    def bt_remove_clicked(self):
-        selected = self.ui.tableView_Stages.selectedIndexes()
-        if len(selected) == 0:
-            return
-        first_row = selected[0].row()
-        rows = selected[-1].row() - first_row + 1
-        self.tbmodel_Stages.removeRows(first_row, rows)
-    
-    def get_model(self):
-        return self.tbmodel_Stages
-
-    def bt_save_clicked(self):
-        fname = unicode(QFileDialog.getSaveFileName(caption='Salvar arquivo de processo',filter='Arquivo de processo (*.prc)'))
-        if (fname == u''): return
-        fname, ext = os.path.splitext(fname)
-        if (ext == ''): ext = 'prc'
-        f = io.open(fname + '.' + '.prc', "w", encoding="utf-8")
-        f.write(json.dumps(self.tbmodel_Stages.rows, ensure_ascii=False,indent=2))
-        f.close()
-        
-    def bt_load_clicked(self):
-        fname = unicode(QFileDialog.getOpenFileName(caption='Abrir arquivo de processo',filter='Arquivo de processo (*.prc)'))
-        if (fname == u''): return
-        f = io.open(fname, "r",encoding="utf-8")
-        self.tbmodel_Stages.load(json.loads(f.read()))
-        f.close()
-        self.ui.tableView_Stages.resizeColumnsToContents();
-    
-    def set_PIDControl(self, p_control):
-        self.p_control = p_control
-
-    def set_PumpControl(self, pump_control):
-        self.pump_control = pump_control
-
-    def set_TimerControl(self, timer_control):
-        self.timer_control = timer_control
-
-    def selectionChanged(self, selected, deselected):
-        selected = selected.indexes()
-        selected = selected[0].row() if len(selected) >= 1 else -1
-        deselected = deselected.indexes()
-        deselected = deselected[0].row() if len(deselected) >= 1 else -1
-        self.p_control.set_row(selected)
-        self.pump_control.set_row(selected)
-        self.timer_control.set_row(selected)
-        if selected != -1:    
-            self.ui.tabWidget.setTabText(1, u'Etapa %d - ' % (selected+1,) + self.tbmodel_Stages.get_field(selected, u'stage_name'))
-            self.ui.tabWidget.setTabEnabled(1, True)
-        else:
-            self.ui.tabWidget.setTabText(1, u'Selecione uma Etapa...')
-            self.ui.tabWidget.setTabEnabled(1, False)
-        
-# class TableControlIngridients(object):
-#     def __init__(self, ui):
-#         self.tbmodel_Ingridients = DictTableModel([u"stage_name"])
-#         self.tbmodel_Ingridients.header[u"stage_name"] = u'Estágio'
-#         self.ui = ui
-#         self.ui.tableView_Ingridients.setModel(self.tbmodel_Ingridients)
-#         self.ui.btAdd_2.clicked.connect(self.bt_add_clicked)
-#         self.ui.btRemove_2.clicked.connect(self.bt_remove_clicked)
-        
-#     def bt_add_clicked(self):
-#         self.tbmodel_Ingridients.add()
-        
-#     def bt_remove_clicked(self):
-#         selected = self.ui.tableView_Ingridients.selectedIndexes()
-#         if len(selected) == 0:
-#             return
-#         first_row = selected[0].row()
-#         rows = selected[-1].row() - first_row + 1
-#         self.tbmodel_Ingridients.removeRows(first_row, rows)
 
 
 class ProcessController(object):
@@ -394,13 +299,14 @@ if __name__ == "__main__":
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     tbmodel_Stages = DictTableModel([u'stage_name',u'stage_status',u'stage_time_elapsed',u'timer_time_elapsed',u'timer_time_remaining'])
+    tbmodel_Ingridients = DictTableModel([u"ingridient_name", u"ingridient_time_type_addition", u"ingridient_time_addition"])
     pidControl = PIDControl(ui, tbmodel_Stages)
     pumpControl = PumpControl(ui, tbmodel_Stages)
     tableControlStages = TableControlStages(ui, tbmodel_Stages)
     tableControlStages.set_PIDControl(pidControl)
     tableControlStages.set_PumpControl(pumpControl)
     tableControlStages.set_TimerControl(TimerControl(ui, tbmodel_Stages))
-    #tableControlIngridients = TableControlIngridients(ui)
+    tableControlIngridients = TableControlIngridients(ui, tbmodel_Ingridients)
     processController = ProcessController(ui, tbmodel_Stages)
     MainWindow.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
     MainWindow.setWindowState(QtCore.Qt.WindowMaximized) 

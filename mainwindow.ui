@@ -38,7 +38,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <property name="iconSize">
        <size>
@@ -1112,8 +1112,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>164</width>
-              <height>126</height>
+              <width>671</width>
+              <height>324</height>
              </rect>
             </property>
             <attribute name="label">
@@ -1220,6 +1220,70 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tabIngridients">
+       <attribute name="title">
+        <string>Insumos da etapa</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="sizeConstraint">
+           <enum>QLayout::SetNoConstraint</enum>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QToolButton" name="btAdd_2">
+            <property name="text">
+             <string>Adicionar</string>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normalon>:/Icons/Icons/add.png</normalon>
+             </iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="btRemove_2">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normalon>:/Icons/Icons/del.png</normalon>
+             </iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableView" name="tableView_Ingridients">
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -1233,11 +1297,121 @@
      <height>30</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuArquivo">
+    <property name="title">
+     <string>Processo</string>
+    </property>
+    <addaction name="actionAbrir"/>
+    <addaction name="actionSalvar"/>
+    <addaction name="separator"/>
+    <addaction name="actionIniciar_2"/>
+    <addaction name="actionAvan_ar_etapa"/>
+    <addaction name="actionVoltar_etapa"/>
+    <addaction name="actionPausar"/>
+   </widget>
+   <widget class="QMenu" name="menuSess_o">
+    <property name="title">
+     <string>Sessão</string>
+    </property>
+    <addaction name="actionAbrir_2"/>
+    <addaction name="actionSalvar_2"/>
+    <addaction name="separator"/>
+    <addaction name="actionExportar_Dados"/>
+   </widget>
+   <widget class="QMenu" name="menuAjuda">
+    <property name="title">
+     <string>Ajuda</string>
+    </property>
+    <addaction name="actionSobre"/>
+   </widget>
+   <addaction name="menuArquivo"/>
+   <addaction name="menuSess_o"/>
+   <addaction name="menuAjuda"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionIniciar">
    <property name="text">
     <string>Iniciar</string>
+   </property>
+  </action>
+  <action name="actionAbrir">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/Icons/Icons/load.png</normaloff>:/Icons/Icons/load.png</iconset>
+   </property>
+   <property name="text">
+    <string>Abrir</string>
+   </property>
+  </action>
+  <action name="actionSalvar">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/Icons/Icons/save.png</normaloff>:/Icons/Icons/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Salvar</string>
+   </property>
+  </action>
+  <action name="actionSalvar_Sess_o">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/Icons/Icons/save.png</normaloff>:/Icons/Icons/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Salvar Sessão</string>
+   </property>
+  </action>
+  <action name="actionExportar_dados">
+   <property name="text">
+    <string>Exportar</string>
+   </property>
+  </action>
+  <action name="actionAbrir_2">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/Icons/Icons/load.png</normaloff>:/Icons/Icons/load.png</iconset>
+   </property>
+   <property name="text">
+    <string>Abrir</string>
+   </property>
+  </action>
+  <action name="actionSalvar_2">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/Icons/Icons/save.png</normaloff>:/Icons/Icons/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Salvar</string>
+   </property>
+  </action>
+  <action name="actionExportar_Dados">
+   <property name="text">
+    <string>Exportar Dados</string>
+   </property>
+  </action>
+  <action name="actionIniciar_2">
+   <property name="text">
+    <string>Iniciar</string>
+   </property>
+  </action>
+  <action name="actionAvan_ar_etapa">
+   <property name="text">
+    <string>Avançar etapa</string>
+   </property>
+  </action>
+  <action name="actionVoltar_etapa">
+   <property name="text">
+    <string>Voltar etapa</string>
+   </property>
+  </action>
+  <action name="actionPausar">
+   <property name="text">
+    <string>Pausar</string>
+   </property>
+  </action>
+  <action name="actionSobre">
+   <property name="text">
+    <string>Sobre</string>
    </property>
   </action>
  </widget>
