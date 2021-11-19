@@ -4,6 +4,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import io
 import json
+import os
 
 class TableControlStages(object):
     def __init__(self, ui, model):
@@ -66,6 +67,9 @@ class TableControlStages(object):
     def set_TimerControl(self, timer_control):
         self.timer_control = timer_control
 
+    def set_IngridientsControl(self, ingrid_control):
+        self.ingrid_control = ingrid_control
+
     def selectionChanged(self, selected, deselected):
         selected = selected.indexes()
         selected = selected[0].row() if len(selected) >= 1 else -1
@@ -74,9 +78,13 @@ class TableControlStages(object):
         self.p_control.set_row(selected)
         self.pump_control.set_row(selected)
         self.timer_control.set_row(selected)
+
         if selected != -1:    
             self.ui.tabWidget.setTabText(1, u'Etapa %d - ' % (selected+1,) + self.tbmodel_Stages.get_field(selected, u'stage_name'))
             self.ui.tabWidget.setTabEnabled(1, True)
+            if self.tbmodel_Stages.row_data(selected).get(u'IngridientsData') is None:
+                self.tbmodel_Stages.row_data(selected)[u'IngridientsData'] = []
+            self.ingrid_control.model.load(self.tbmodel_Stages.row_data(selected)[u'IngridientsData'])
         else:
             self.ui.tabWidget.setTabText(1, u'Selecione uma Etapa...')
             self.ui.tabWidget.setTabEnabled(1, False)

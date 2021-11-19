@@ -21,7 +21,7 @@ class DictTableModel(QAbstractTableModel):
         row = {}
         for l in self.fields:
             row[l] = u''
-        return {u'columns':row, u'data': {u'PID': {}, u'Pump': {}, u'ProcessTimer': {}} }
+        return {u'columns':row, u'data': {u'PID': {}, u'Pump': {}, u'ProcessTimer': {}, u'IngridientsData':[]} }
     
     def columnCount(self, parent):
         return len(self.fields)
