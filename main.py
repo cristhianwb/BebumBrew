@@ -9,8 +9,8 @@ from timer import TimerControl
 from pump import PumpControl
 from model import DictTableModel
 from simple_pid import PID
-from serial_com import * #for functioning with device use this
-#from serial_emulator import * #and for testing use this
+#from serial_com import * #for functioning with device use this
+from serial_emulator import * #and for testing use this
 from plot import *
 import time
 import os
@@ -54,6 +54,7 @@ class ProcessController(object):
         self.timer_start_time = None
         self.timer_started = False
         self.plot_control = PlotControl(ui)
+        self.IngridTimer = IngridentsTimer(self)
 
 
     #a funcao process ehh chamada a cada metade da taxa de amostragem
@@ -116,6 +117,7 @@ class ProcessController(object):
         self.timer_time_remaining = QTime(0,0,0)
         self.timer_start_time = QTime(0,0,0)
         self.timer_started = False
+        self.IngridTimer.reset()
 
     def get_next_stage(self):
         #This is used when the user forces the change of the stage
@@ -150,6 +152,7 @@ class ProcessController(object):
             time = QTime(0,0,0).addSecs(timer_data.get(u'time'))
             self.timer_time_elapsed = QTime(0,0,0).addSecs(self.timer_start_time.secsTo(QTime.currentTime()))
             self.timer_time_remaining = QTime(0,0,0).addSecs(self.timer_time_elapsed.secsTo(time))
+            self.IngridTimer.process()
             if (self.timer_time_elapsed) >= time:
                 next_stage = self.current_stage + 1
                 if self.model.count() == next_stage:

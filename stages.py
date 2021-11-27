@@ -45,8 +45,8 @@ class TableControlStages(object):
         fname = unicode(QFileDialog.getSaveFileName(caption='Salvar arquivo de processo',filter='Arquivo de processo (*.prc)'))
         if (fname == u''): return
         fname, ext = os.path.splitext(fname)
-        if (ext == ''): ext = 'prc'
-        f = io.open(fname + '.' + '.prc', "w", encoding="utf-8")
+        if (ext == ''): ext = '.prc'
+        f = io.open(fname + ext, "w", encoding="utf-8")
         f.write(json.dumps(self.tbmodel_Stages.rows, ensure_ascii=False,indent=2))
         f.close()
         
@@ -56,7 +56,6 @@ class TableControlStages(object):
         f = io.open(fname, "r",encoding="utf-8")
         self.tbmodel_Stages.load(json.loads(f.read()))
         f.close()
-        self.ui.tableView_Stages.resizeColumnsToContents();
     
     def set_PIDControl(self, p_control):
         self.p_control = p_control

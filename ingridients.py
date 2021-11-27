@@ -1,6 +1,44 @@
 # -*- coding: utf-8 -*-
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from playsound import playsound
+
+class IngridentsTimer(object):
+    def __init__(self, procController):
+        self.processController = procController
+        self.ingridients_added = {}
+        
+
+    def reset(self):
+        self.ingridients_added = {}
+
+    def process(self):
+        ingridData = self.processController.model.row_data(self.processController.current_stage).get(u'IngridientsData')
+        if ingridData is None or not self.processController.timer_started:
+            return
+        print ingridData
+        for row in ingridData:
+            if self.ingridients_added.get(row[u'columns'].get(u'ingridient_name')):
+                continue
+
+            addTime = QTime.fromString(row[u'columns'][u'ingridient_time_addition'], u'hh:mm:ss')
+
+            if (row[u'columns'][u'ingridient_time_type_addition'] == u'Após'):
+                if (self.processController.timer_time_elapsed >= addTime):
+                    ingrid = row[u'columns'].get(u'ingridient_name')
+                    self.ingridients_added[ingrid] = True
+                    playsound('notification.wav', False)
+                    QMessageBox.information(None, 'Adicionar insumo', 'Hora de adicionar o ' + ingrid)
+                    #self.sound.stop()
+            else:
+                if (self.processController.timer_time_remaining <= addTime):
+                    ingrid = row[u'columns'].get(u'ingridient_name')
+                    self.ingridients_added[ingrid] = True
+                    playsound('notification.wav', False)
+                    QMessageBox.information(None, 'Adicionar insumo', 'Hora de adicionar o ' + ingrid)
+                    #self.sound.stop()
+
+
 
 
 class IngridientsDictTableModel(QAbstractTableModel):
@@ -97,6 +135,7 @@ class IngridientsDictTableModel(QAbstractTableModel):
         self.beginResetModel()
         self.rows = data
         self.endResetModel()
+        self.table.resizeColumnsToContents()
 
     def count(self):
         return len(self.rows)

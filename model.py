@@ -98,6 +98,7 @@ class DictTableModel(QAbstractTableModel):
         self.beginResetModel()
         self.rows = data
         self.endResetModel()
+        self.table.resizeColumnsToContents()
 
     def count(self):
         return len(self.rows)

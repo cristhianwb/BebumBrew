@@ -14,10 +14,26 @@
         "enabled": true
       }, 
       "ProcessTimer": {
-        "startCond": 2, 
+        "startCond": 1, 
         "temp": 96.0, 
-        "time": 900
-      }
+        "time": 30
+      }, 
+      "IngridientsData": [
+        {
+          "columns": {
+            "ingridient_time_type_addition": "Após", 
+            "ingridient_name": "Teste", 
+            "ingridient_time_addition": "00:00:10"
+          }
+        }, 
+        {
+          "columns": {
+            "ingridient_time_type_addition": "Faltando", 
+            "ingridient_name": "Teste2", 
+            "ingridient_time_addition": "00:00:15"
+          }
+        }
+      ]
     }, 
     "columns": {
       "stage_name": "Fervura de preparação da agua", 
@@ -46,7 +62,16 @@
         "startCond": 3, 
         "temp": 68.0, 
         "time": 3600
-      }
+      }, 
+      "IngridientsData": [
+        {
+          "columns": {
+            "ingridient_time_type_addition": "Após", 
+            "ingridient_name": "Malte Pilsen", 
+            "ingridient_time_addition": "00:00:00"
+          }
+        }
+      ]
     }, 
     "columns": {
       "stage_name": "Mosturação", 
