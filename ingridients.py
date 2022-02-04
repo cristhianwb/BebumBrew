@@ -2,16 +2,27 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from playsound import playsound
+import threading
 
 class IngridentsTimer(object):
     def __init__(self, procController):
         self.processController = procController
         self.ingridients_added = {}
+        self.alert_on = False
+
         
 
     def reset(self):
         self.ingridients_added = {}
 
+
+    def alert(self):
+        self.alert_on = True
+        while self.alert_on:
+          playsound('notification.wav', True)
+
+
+    
     def process(self):
         ingridData = self.processController.model.row_data(self.processController.current_stage).get(u'IngridientsData')
         if ingridData is None or not self.processController.timer_started:
@@ -23,20 +34,16 @@ class IngridentsTimer(object):
 
             addTime = QTime.fromString(row[u'columns'][u'ingridient_time_addition'], u'hh:mm:ss')
 
-            if (row[u'columns'][u'ingridient_time_type_addition'] == u'Após'):
-                if (self.processController.timer_time_elapsed >= addTime):
+            if ((row[u'columns'][u'ingridient_time_type_addition'] == u'Após') and (self.processController.timer_time_elapsed >= addTime)) \
+            or ((row[u'columns'][u'ingridient_time_type_addition'] == u'Faltando') and (self.processController.timer_time_remaining <= addTime)):
                     ingrid = row[u'columns'].get(u'ingridient_name')
                     self.ingridients_added[ingrid] = True
-                    playsound('notification.wav', False)
+                    #run thread to play sound 'til user press ok
+                    al_thread = threading.Thread(target=self.alert, args=())
+                    al_thread.daemon = True;
+                    al_thread.start()                    
                     QMessageBox.information(None, 'Adicionar insumo', 'Hora de adicionar o ' + ingrid)
-                    #self.sound.stop()
-            else:
-                if (self.processController.timer_time_remaining <= addTime):
-                    ingrid = row[u'columns'].get(u'ingridient_name')
-                    self.ingridients_added[ingrid] = True
-                    playsound('notification.wav', False)
-                    QMessageBox.information(None, 'Adicionar insumo', 'Hora de adicionar o ' + ingrid)
-                    #self.sound.stop()
+                    self.alert_on = False
 
 
 
