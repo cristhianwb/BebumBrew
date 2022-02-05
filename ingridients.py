@@ -19,7 +19,7 @@ class IngridentsTimer(object):
     def alert(self):
         self.alert_on = True
         while self.alert_on:
-          os.system('aplay notification.wav')
+          os.system('aplay ~/ProcessController/notification.wav')
 
     
     def process(self):
