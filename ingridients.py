@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from playsound import playsound
+import os
 import threading
 
 class IngridentsTimer(object):
@@ -19,8 +19,7 @@ class IngridentsTimer(object):
     def alert(self):
         self.alert_on = True
         while self.alert_on:
-          playsound('notification.wav', True)
-
+          os.system('aplay notification.wav')
 
     
     def process(self):
