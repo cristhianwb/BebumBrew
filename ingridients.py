@@ -26,7 +26,7 @@ class IngridentsTimer(object):
         ingridData = self.processController.model.row_data(self.processController.current_stage).get(u'IngridientsData')
         if ingridData is None or not self.processController.timer_started:
             return
-        print ingridData
+        
         for row in ingridData:
             if self.ingridients_added.get(row[u'columns'].get(u'ingridient_name')):
                 continue

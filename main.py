@@ -80,8 +80,6 @@ class ProcessController(object):
         if self.ser.temp2 != -127:
             self.temp2 = self.ser.temp2
         
-        print 'temp:', self.temp
-
 
         next_stage = self.get_next_stage()
         state_changed = (next_stage != self.current_stage)
@@ -202,7 +200,6 @@ class ProcessController(object):
 
     def get_pid_control_changed(self):
         changed = self.model.row_data(self.current_stage)[u'PID'].get(u'changed')
-        print 'pid changed: ', changed
         if changed:
             self.model.row_data(self.current_stage)[u'PID'][u'changed'] = False
             return True

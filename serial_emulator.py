@@ -104,9 +104,9 @@ class SerialInterface(object):
 
     def process(self):
         if (self.state == ST.SEND):
-            print '---------'
-            print self.current_error_count
-            print self.is_connected
+            #print '---------'
+            #print self.current_error_count
+            #print self.is_connected
             if (self.current_error_count == self.max_error_count) or not self.is_connected:
                 
                 self.is_connected = self.connect()
@@ -123,7 +123,7 @@ class SerialInterface(object):
         else:
             self.state = ST.SEND
             rcv = self.receive()
-            print '#####', rcv
+            #print '#####', rcv
             if rcv is None:
                 self.rcv_status = False
                 self.current_error_count += 1
