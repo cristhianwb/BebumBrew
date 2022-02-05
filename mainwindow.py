@@ -668,6 +668,8 @@ class Ui_MainWindow(object):
         self.actionPausar.setObjectName(_fromUtf8("actionPausar"))
         self.actionSobre = QtGui.QAction(MainWindow)
         self.actionSobre.setObjectName(_fromUtf8("actionSobre"))
+        self.actionTeste = QtGui.QAction(MainWindow)
+        self.actionTeste.setObjectName(_fromUtf8("actionTeste"))
         self.menuArquivo.addAction(self.actionAbrir)
         self.menuArquivo.addAction(self.actionSalvar)
         self.menuArquivo.addSeparator()
@@ -675,6 +677,7 @@ class Ui_MainWindow(object):
         self.menuArquivo.addAction(self.actionAvan_ar_etapa)
         self.menuArquivo.addAction(self.actionVoltar_etapa)
         self.menuArquivo.addAction(self.actionPausar)
+        self.menuArquivo.addAction(self.actionTeste)
         self.menuSess_o.addAction(self.actionAbrir_2)
         self.menuSess_o.addAction(self.actionSalvar_2)
         self.menuSess_o.addSeparator()
@@ -774,5 +777,6 @@ class Ui_MainWindow(object):
         self.actionVoltar_etapa.setText(_translate("MainWindow", "Voltar etapa", None))
         self.actionPausar.setText(_translate("MainWindow", "Pausar", None))
         self.actionSobre.setText(_translate("MainWindow", "Sobre", None))
+        self.actionTeste.setText(_translate("MainWindow", "Teste", None))
 
 import resources_rc

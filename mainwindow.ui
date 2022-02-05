@@ -1308,6 +1308,7 @@
     <addaction name="actionAvan_ar_etapa"/>
     <addaction name="actionVoltar_etapa"/>
     <addaction name="actionPausar"/>
+    <addaction name="actionTeste"/>
    </widget>
    <widget class="QMenu" name="menuSess_o">
     <property name="title">
@@ -1412,6 +1413,11 @@
   <action name="actionSobre">
    <property name="text">
     <string>Sobre</string>
+   </property>
+  </action>
+  <action name="actionTeste">
+   <property name="text">
+    <string>Teste</string>
    </property>
   </action>
  </widget>
