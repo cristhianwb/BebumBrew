@@ -7,8 +7,10 @@ from matplotlib.backends.backend_qt4agg import (
         FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-
 import random
+import io
+import json
+
 
 def rgb_from_qcolor(color):
     return color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0
@@ -21,7 +23,9 @@ class PlotControl(object):
             'sensor2': [],
             'heater_power': [],
             'pump_power': [],
-            'setpoint': []
+            'setpoint': [],
+            'marks': [],
+            'sample_count': 0
         }
 
         #minimun window size
@@ -71,7 +75,7 @@ class PlotControl(object):
         ui.chkSensor2Line.clicked.connect(lambda x: self.sensor2_line.set_visible(x))
         ui.chkPumpLine.clicked.connect(lambda x: self.pump_power_line.set_visible(x))
         ui.chkHeaterLine.clicked.connect(lambda x: self.heater_power_line.set_visible(x))
-        ui.chkSetpointLine.clicked.connect(lambda x: setpoint_line.set_visible(x))
+        ui.chkSetpointLine.clicked.connect(lambda x: self.setpoint_line.set_visible(x))
 
     def start(self):
         if self.ani is None:
@@ -147,6 +151,7 @@ class PlotControl(object):
 
 
     def plot(self, temp1, temp2, power, p_power, xsetpoint):
+        sample_count = self.data['sample_count']
         sensor1 = self.data['sensor1']
         sensor2 = self.data['sensor2']
         setpoint = self.data['setpoint']
@@ -157,8 +162,10 @@ class PlotControl(object):
         heater_power.append(power)        
         pump_power.append(int(float(p_power) / 255.0 * 100))
         setpoint.append(xsetpoint)
+        sample_count += 1
+        self.data['sample_count'] = sample_count
              
-        count = len(sensor1)
+        count = sample_count
         if self.ui.chkAdjToScreen.isChecked():
             self.zoom = 1
             self.set_window_size()
@@ -177,9 +184,29 @@ class PlotControl(object):
         wx_0 = (wx_1 - self.window_size)
         #print('x0:', wx_0, 'x1:', wx_1)
         self.ax.set_xlim(wx_0, wx_1)
+        
+
+    def add_mark(self, text):
+        mark_position = self.data['sample_count']# - 1 if (self.data['sample_count'] > 0) else 0
+        mark = (mark_position, text)
+        self.data['marks'].append(mark)
+        self.ax.axvline(mark_position, color ="black", alpha = 0.8, lw = 1.5)
+        plt.text(mark_position, 30, text, rotation=90)
+        print(self.data['marks'])
+
+
 
     def zoom_changed(self, value):
-        self.zoom = value
+        if value == 0:
+            self.zoom = 1
+        else:
+            self.zoom = value
         self.set_window_size()
+
+    def export_data(self, file_name):
+        f = io.open(file_name, "w", encoding="utf-8")
+        f.write(json.dumps(self.data, ensure_ascii=False, indent=2))
+        f.close()
+
 
     

@@ -91,7 +91,7 @@ class SerialInterface(object):
         return True
     
     def receive(self):
-        v = (0, 0, self.x, self.x + 5)
+        v = (0, 0, self.x, self.x + 40)
         self.x += self.inc
         if (self.x >= 30.0) and (self.inc > 0): self.inc = -self.inc
         if (self.x <= 20.0) and (self.inc < 0): self.inc = -self.inc

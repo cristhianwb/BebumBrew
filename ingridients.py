@@ -44,9 +44,6 @@ class IngridentsTimer(object):
                     QMessageBox.information(None, 'Adicionar insumo', 'Hora de adicionar o ' + ingrid)
                     self.alert_on = False
 
-
-
-
 class IngridientsDictTableModel(QAbstractTableModel):
     def __init__(self, fields, parent=None, *args):
         QAbstractTableModel.__init__(self, parent, *args)

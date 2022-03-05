@@ -10,6 +10,8 @@ class TimerControl(object):
         ui.cbTimerStartCond.currentIndexChanged.connect(self.indexChanged)
         ui.timerTempField.valueChanged.connect(self.timerTempChanged)
         ui.timerTimeField.timeChanged.connect(self.timerTimeChanged)
+        ui.cbSensorSelect.currentIndexChanged.connect(self.sensorSlectChanged)
+
     
     def set_row(self, row):
         self.row = row
@@ -27,6 +29,8 @@ class TimerControl(object):
         time = time if time != None else 0
         time = QTime(0,0,0).addSecs(time)
         self.ui.timerTimeField.setTime(time)
+        sensorSelect = data.get(u'sensorSelect')
+        self.ui.cbSensorSelect.setCurrentIndex(sensorSelect if sensorSelect != None else 0)
 
 
 
@@ -39,6 +43,9 @@ class TimerControl(object):
     def timerTimeChanged(self, value):
         #convert time to seconds to save on the structure
         self.valueChanged('time', QTime(0,0,0).secsTo(value))
+
+    def sensorSlectChanged(self, index):
+        self.valueChanged('sensorSelect', index)
 
     def valueChanged(self, pr_name, pr_value):
         if self.row != -1:

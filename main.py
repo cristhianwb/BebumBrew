@@ -10,8 +10,8 @@ from timer import TimerControl
 from pump import PumpControl
 from model import DictTableModel
 from simple_pid import PID
-#from serial_com import * #for functioning with device use this
-from serial_emulator import * #and for testing use this
+from serial_com import * #for functioning with device use this
+#from serial_emulator import * #and for testing use this
 from plot import *
 import time
 import os
@@ -35,6 +35,7 @@ class ProcessController(object):
         self.ui.btPrev.clicked.connect(self.goto_prev_stage)
         self.ui.btNext.clicked.connect(self.goto_next_stage)
         self.ui.tabWidget.currentChanged.connect(self.tabChanged)
+        self.ui.actionExportar_Dados.triggered.connect(self.action_export_session_data)
         self.timer = QTimer()
         self.timer_state = TimerState.STOPPED        
         self.current_stage = 0
@@ -45,6 +46,7 @@ class ProcessController(object):
         self.setpoint = 0
         self.temp = 0
         self.temp2 = 0
+        self.pid_sensor_selected = 0
         self.model = model
         self.interval = sampling_interval
         self.pid = PID(0.0, 0.0, 0.0, setpoint=0.0, sample_time=sampling_interval, output_limits=(0, 100), auto_mode=False, proportional_on_measurement=False)
@@ -63,7 +65,7 @@ class ProcessController(object):
     #e metade do tempo ehh para receber dados do sensor de temperatura
     #a funcao de calculo de pid ehh chamada apenas quando ehh recebida
     #a temperatura, fechando assim o 1 intervalo de amostragem completo
-    #exemplo se a taxa de amostragem for de 1 segundo, 1/2 segunda envia
+    #exemplo se a taxa de amostragem for de 1 segundo, 1/2 segundo envia
     # 1/2 segundo recebe, calculo do pid a cada 1 segundo
     def process(self):
         #se o proximo estado do serial a ser processado ehh o de envio, setar variaveis de envio
@@ -78,7 +80,7 @@ class ProcessController(object):
         if ((self.ser.temp != -127) and (self.ser.temp != 0)):
             self.temp = self.ser.temp
 
-        if self.ser.temp2 != -127:
+        if ((self.ser.temp2 != -127) and (self.ser.temp2 != 0)):
             self.temp2 = self.ser.temp2
         
 
@@ -102,7 +104,9 @@ class ProcessController(object):
             self.load_pid_params()
         
         if self.pid_enabled:
-            self.output = self.pid(self.temp)
+            cur_temp = self.temp if (self.pid_sensor_selected == 0) else self.temp2
+            print self.pid_sensor_selected, ' - ', cur_temp
+            self.output = self.pid(cur_temp)
         
         self.update_outputs_to_ui()
         self.plot_control.plot(self.temp, self.temp2, self.output, self.pump_power, self.setpoint)
@@ -135,13 +139,15 @@ class ProcessController(object):
         if not self.timer_started:
             startCond = timer_data.get(u'startCond')
             temp = timer_data.get(u'temp')
+            sens = timer_data.get(u'sensorSelect') if timer_data.get(u'sensorSelect') != None else 0
+            cur_temp = self.temp if (sens == 0) else self.temp2
         
             if startCond == 1:
                 self.timer_started = True
             elif (startCond == 2) and (temp != None):
-                self.timer_started = (self.temp >= temp)
+                self.timer_started = (cur_temp >= temp)
             elif (startCond == 3) and (temp != None):
-                self.timer_started = (self.temp <= temp)
+                self.timer_started = (cur_temp <= temp)
             
             if self.timer_started:
                 self.timer_start_time = QTime().currentTime()
@@ -175,6 +181,8 @@ class ProcessController(object):
         self.ui.lbStatus.setText(self.get_current_stage_status())
         self.ui.lbStage.setText(self.model.get_field(self.current_stage, u'stage_name'))
         self.ui.lbNextStage.setText(self.model.get_field(self.current_stage+1, u'stage_name') if (self.current_stage+1 < self.model.count()) and (self.current_stage >= 0) else u'Fim do processo' )
+        self.plot_control.add_mark(self.model.get_field(self.current_stage, u'stage_name'))
+
 
     def update_outputs_to_ui(self):
         if self.pid_enabled:
@@ -220,7 +228,10 @@ class ProcessController(object):
         i = i if i != None else 0.0
         d = self.model.row_data(self.current_stage)[u'PID'].get('d_value')
         d = d if d != None else 0.0
-        output = self.model.row_data(self.current_stage)[u'PID'].get('out_power')
+
+        self.pid_sensor_selected = self.model.row_data(self.current_stage)[u'PID'].get('sen_select')
+        self.pid_sensor_selected = self.pid_sensor_selected if self.pid_sensor_selected != None else 0
+        
         if self.model.row_data(self.current_stage)[u'Pump'].get('enabled'):
             self.pump_power = self.model.row_data(self.current_stage)[u'Pump'].get('power')
         else:
@@ -228,12 +239,14 @@ class ProcessController(object):
         
         if self.pump_power == None:
             self.pump_power = 0
-        self.output = output if output != None else 0.0
         setpoint = self.model.row_data(self.current_stage)[u'PID'].get('set_point')
         setpoint = setpoint if setpoint != None else 0.0
         self.setpoint = setpoint
         enabled = self.model.row_data(self.current_stage)[u'PID'].get('enabled')
         self.pid_enabled = enabled if enabled != None else False
+        if not self.pid_enabled:
+            output = self.model.row_data(self.current_stage)[u'PID'].get('out_power')
+            self.output = output if output != None else 0.0
         self.pid.tunings = (p, i, d)
         self.pid.setpoint = setpoint
         self.pid.auto_mode = self.pid_enabled
@@ -291,6 +304,13 @@ class ProcessController(object):
 
     def tabChanged(self, index):
         pass
+
+    def action_export_session_data(self):
+        fname = unicode(QFileDialog.getSaveFileName(caption='Exportar dados da Sessão',filter='Arquivo json (*.json)'))
+        if (fname == u''): return
+        fname, ext = os.path.splitext(fname)
+        if (ext == ''): ext = '.json'
+        self.plot_control.export_data(fname + ext)
 
 
 if __name__ == "__main__":
