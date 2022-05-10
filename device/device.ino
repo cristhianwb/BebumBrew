@@ -10,6 +10,7 @@
 #define TIMEOUT        10000
 
 #define ONE_WIRE_BUS 5
+#define F_SWITCH_PIN     8
 
 #define CM_SYNC  0xf1
 #define CM_TEMP  0xf2
@@ -22,7 +23,8 @@ typedef struct _packet{
   long pump_power;
   double temp;
   double temp2;
-  uint8_t pad[3];
+  uint8_t f_switch;
+  uint8_t pad[2];
   crc crc_code;
 } packet;
 
@@ -43,6 +45,7 @@ void setup(){
   sensors.begin();
   sensors.setWaitForConversion(false);
   pinMode(6, OUTPUT);
+  pinMode(F_SWITCH_PIN, INPUT_PULLUP);
   sensors.getAddress(sensor1, 0);
   sensors.getAddress(sensor2, 1); 
   sensors.requestTemperatures();
@@ -103,6 +106,7 @@ void loop(){
             pkt.temp = sensors.getTempC(sensor1);
             pkt.temp2 = sensors.getTempC(sensor2);
           }
+          pkt.f_switch = digitalRead(F_SWITCH_PIN);
           sensors.requestTemperatures();
           pkt.crc_code = crcFast((byte*) &pkt, sizeof(packet) - sizeof(crc) );
           //Reset the error counter

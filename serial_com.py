@@ -66,6 +66,7 @@ class SerialInterface(object):
         self.pump_power = 0
         self.temp = 0
         self.temp2 = 0
+        self.f_switch = False
         self.port = port
         self.baud = baud
         self.conn = None
@@ -103,7 +104,7 @@ class SerialInterface(object):
                 rcv = self.receive()
                 if rcv == None:
                     raise Exception()
-                a, b, c, d = rcv
+                a, b, c, d, e = rcv
                 print 'Finnishing handshake'
                 if b == self.SYNC_CODE_RCV:
                     self.send(0, self.SYNC_CODE)
@@ -141,9 +142,9 @@ class SerialInterface(object):
             rcv = self.conn.read(20)
             if len(rcv) != 20:
                 raise Exception('Eperando receber 16 bytes porem foram recebidos %d' % (len(rcv),))
-            a, b, temp, temp2, check_sum =  unpack('iiff3xB', rcv)
+            a, b, temp, temp2, f_switch, check_sum =  unpack('iiffB2xB', rcv)
             if ( self.crc.calculate(bytearray(rcv[0:-1])) == check_sum ):
-                return (a, b, temp, temp2)
+                return (a, b, temp, temp2, (f_switch == 1))
             else:
                 raise Exception('Erro no CRC, esperado %h encontrado %h' % (self.crc.calculate(bytearray(rcv[0:-1])) , check_sum) )
         except Exception as e:
@@ -183,7 +184,7 @@ class SerialInterface(object):
                 return False
             else:
                 self.rcv_status = True
-                a, b , self.temp, self.temp2 = rcv
+                a, b , self.temp, self.temp2, self.f_switch = rcv
             
             return True
     

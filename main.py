@@ -43,6 +43,14 @@ class ProcessController(object):
         self.timer.timeout.connect(self.process)
         self.output = 0
         self.pump_power = 0
+        self.old_pump_power = 0
+        self.pump_power_normal = 0
+        self.pump_power_high = 0
+        self.level_control_enabled = False
+        self.burst_en = False
+        self.f_switch_on = False
+        self.burst_timer = 1
+        self.cur_burst_timer = 0
         self.setpoint = 0
         self.temp = 0
         self.temp2 = 0
@@ -71,6 +79,7 @@ class ProcessController(object):
         #se o proximo estado do serial a ser processado ehh o de envio, setar variaveis de envio
         if self.ser.state == ST.SEND:
             self.ser.heater_power = self.output
+            
             self.ser.pump_power = self.pump_power
         
         #processar pacote apenas quando recebe-lo
@@ -82,7 +91,27 @@ class ProcessController(object):
 
         if ((self.ser.temp2 != -127) and (self.ser.temp2 != 0)):
             self.temp2 = self.ser.temp2
-        
+
+        self.f_switch_on = not self.ser.f_switch
+
+        if self.level_control_enabled and self.f_switch_on:
+            self.pump_power = self.pump_power_high
+        else:
+            self.pump_power = self.pump_power_normal
+
+        if self.burst_en:
+            print 'burst: ', self.cur_burst_timer, '-', self.burst_timer
+            if (self.cur_burst_timer > 0):
+                self.pump_power = 255
+                self.cur_burst_timer -= 0.5
+            else:
+                if (self.pump_power != self.old_pump_power):
+                    if (self.old_pump_power == 0) and (self.pump_power > 0):
+                        self.cur_burst_timer = self.burst_timer
+                    self.old_pump_power = self.pump_power
+
+
+
 
         next_stage = self.get_next_stage()
         state_changed = (next_stage != self.current_stage)
@@ -205,6 +234,10 @@ class ProcessController(object):
         self.model.set_field(self.current_stage, u'stage_time_elapsed', str(self.stage_time_elapsed.toString()))
         self.model.set_field(self.current_stage, u'timer_time_elapsed', str(self.timer_time_elapsed.toString()))
         self.model.set_field(self.current_stage, u'timer_time_remaining', str(self.timer_time_remaining.toString()))
+        self.ui.lbFloatState.setText('Alto' if self.f_switch_on else 'Normal')
+        self.ui.lbFloatState2.setText('Alto' if self.f_switch_on else 'Normal')
+        self.ui.lbFloatState.setStyleSheet('color: red;font-weight: bold' if self.f_switch_on else 'color: green;font-weight: bold')
+        self.ui.lbFloatState2.setStyleSheet('color: red;font-weight: bold' if self.f_switch_on else 'color: green;font-weight: bold')
 
 
     def get_pid_control_changed(self):
@@ -233,12 +266,28 @@ class ProcessController(object):
         self.pid_sensor_selected = self.pid_sensor_selected if self.pid_sensor_selected != None else 0
         
         if self.model.row_data(self.current_stage)[u'Pump'].get('enabled'):
-            self.pump_power = self.model.row_data(self.current_stage)[u'Pump'].get('power')
+            self.pump_power_normal = self.model.row_data(self.current_stage)[u'Pump'].get('power')
+            if self.pump_power_normal == None: self.pump_power_normal = 0
+            
+            self.pump_power_high = self.model.row_data(self.current_stage)[u'Pump'].get('power_high')
+            print self.pump_power_high
+            if self.pump_power_high is None: self.pump_power_high = 0
+
+            self.level_control_enabled = self.model.row_data(self.current_stage)[u'Pump'].get('level_control_enabled')
+            if self.level_control_enabled is None: self.level_control_enabled = False
+
+            self.burst_en = self.model.row_data(self.current_stage)[u'Pump'].get('burst_enabled')
+            
+            if self.burst_en:
+                self.burst_timer = self.model.row_data(self.current_stage)[u'Pump'].get('burst_time')
+                if self.burst_timer is None: self.burst_timer = 0
+
         else:
-            self.pump_power = 0
+            self.pump_power_normal = 0
+            self.pump_power_high = 0
+            self.burst_timer = 0
+            self.cur_burst_timer = 0
         
-        if self.pump_power == None:
-            self.pump_power = 0
         setpoint = self.model.row_data(self.current_stage)[u'PID'].get('set_point')
         setpoint = setpoint if setpoint != None else 0.0
         self.setpoint = setpoint
@@ -262,6 +311,7 @@ class ProcessController(object):
             self.clear_stage_status()
         self.set_current_stage_status(u'Em execução')
         self.update_stage_status_to_ui()
+        print (self.interval / 2) * 1000
         self.timer.start( (self.interval / 2) * 1000)
         self.timer_state = TimerState.RUNNING
         self.plot_control.start()
