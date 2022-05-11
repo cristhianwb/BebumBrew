@@ -6,19 +6,44 @@ class PumpControl(object):
     def __init__(self, ui, model):
         self.enabled = False
         self.power = 0.0
+        self.power_high = 0.0
+        self.level_control_enabled = False
         self.ui = ui
         self.model = model
         self.row = -1
+        self.burst_enabled = False
+        self.burst_time = 1
         ui.sliderPumpPower.valueChanged.connect(self.set_power)
         ui.chkPumpEnabled.clicked.connect(self.set_enabled)
+        ui.chkLevelControl.clicked.connect(self.set_level_control)
+        ui.sliderPumpPowerHigh.valueChanged.connect(self.set_power_high)
+        ui.spinMaxPwrTime.valueChanged.connect(self.set_burst_time)
+        ui.chkBurst.clicked.connect(self.set_burst_enabled)
+
+
+    def set_burst_time(self, val):
+        self.burst_time = val
+        self.valueChanged('burst_time', val)
+    
+    def set_burst_enabled(self, val):
+        self.burst_enabled = val
+        self.valueChanged('burst_enabled', val)
 
     def set_enabled(self, val):
         self.enabled = val
-        self.valueChanged('enabled', self.enabled)
+        self.valueChanged('enabled', val)
+
+    def set_level_control(self, val):
+        self.level_control_enabled = val
+        self.valueChanged('level_control_enabled', val)
 
     def set_power(self, val):
         self.power = val
         self.valueChanged('power', self.power)
+
+    def set_power_high(self, val):
+        self.power_high = val
+        self.valueChanged('power_high', self.power_high)
 
     def valueChanged(self, pr_name, pr_value):
         if self.model != None and self.row != -1:
@@ -36,8 +61,20 @@ class PumpControl(object):
     def fromDict(self, data):
         self.enabled = data.get('enabled') if data != None and data.get('enabled') != None else False
         self.power = data.get('power') if data != None and data.get('power') != None else 0.0
+        self.level_control_enabled = data.get('level_control_enabled') if data != None and data.get('level_control_enabled') != None else False
+        self.power_high = data.get('power_high') if data != None and data.get('power_high') != None else 0.0
+        self.burst_enabled = data.get('burst_enabled') if data != None and data.get('burst_enabled') != None else False
+        self.burst_time = data.get('burst_time') if data != None and data.get('burst_time') != None else False
+        
+
         self.update_component_values()
 
     def update_component_values(self):
         self.ui.chkPumpEnabled.setChecked(self.enabled)
         self.ui.sliderPumpPower.setValue(self.power)
+        self.ui.chkLevelControl.setChecked(self.level_control_enabled)
+        self.ui.sliderPumpPowerHigh.setValue(self.power_high)
+        self.ui.spinMaxPwrTime.setValue(self.burst_time)
+        self.ui.chkBurst.setChecked(self.burst_enabled)
+
+

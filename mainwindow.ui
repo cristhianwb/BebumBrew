@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>711</width>
-    <height>556</height>
+    <width>951</width>
+    <height>844</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -488,7 +488,7 @@
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>80</height>
+              <height>250</height>
              </size>
             </property>
             <property name="title">
@@ -512,14 +512,14 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
+             <item row="2" column="0">
               <widget class="QLabel" name="powerLabel">
                <property name="text">
                 <string>Power (%): </string>
                </property>
               </widget>
              </item>
-             <item row="1" column="1">
+             <item row="2" column="1">
               <widget class="QSlider" name="sliderPumpPower">
                <property name="maximum">
                 <number>255</number>
@@ -529,6 +529,117 @@
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="label_15">
+               <property name="text">
+                <string>Pot. max. partida</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QCheckBox" name="chkBurst">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QLabel" name="label_16">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Tempo (s)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="0" colspan="2">
+              <widget class="Line" name="line">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="0">
+              <widget class="QLabel" name="label_10">
+               <property name="toolTip">
+                <string extracomment="Definir esta potência para a bomba quando a panela atingir o nível máximo"/>
+               </property>
+               <property name="text">
+                <string>Controle de nível</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="1">
+              <widget class="QCheckBox" name="chkLevelControl">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="0">
+              <widget class="QLabel" name="label_11">
+               <property name="text">
+                <string>Power (%)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="1">
+              <widget class="QSlider" name="sliderPumpPowerHigh">
+               <property name="maximum">
+                <number>255</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="0">
+              <widget class="QLabel" name="label_14">
+               <property name="text">
+                <string>Nível</string>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="1">
+              <widget class="QLabel" name="lbFloatState">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color: green;font-weight: bold</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Plain</enum>
+               </property>
+               <property name="text">
+                <string>Normal</string>
+               </property>
+               <property name="textFormat">
+                <enum>Qt::AutoText</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
+              <widget class="QSpinBox" name="spinMaxPwrTime">
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>20</number>
                </property>
               </widget>
              </item>
@@ -685,8 +796,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>657</width>
-              <height>377</height>
+              <width>911</width>
+              <height>612</height>
              </rect>
             </property>
             <attribute name="label">
@@ -910,6 +1021,32 @@
                  </property>
                 </widget>
                </item>
+               <item row="7" column="0">
+                <widget class="QLabel" name="tempSensor2Label">
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Temp. 2</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="1">
+                <widget class="QLabel" name="lbTemp2">
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>0º</string>
+                 </property>
+                </widget>
+               </item>
                <item row="8" column="0">
                 <widget class="QLabel" name="label_13">
                  <property name="font">
@@ -988,8 +1125,8 @@
                  </property>
                 </widget>
                </item>
-               <item row="7" column="0">
-                <widget class="QLabel" name="tempSensor2Label">
+               <item row="11" column="0">
+                <widget class="QLabel" name="nVelLabel">
                  <property name="font">
                   <font>
                    <pointsize>12</pointsize>
@@ -998,19 +1135,17 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Temp. 2</string>
+                  <string>Nível</string>
                  </property>
                 </widget>
                </item>
-               <item row="7" column="1">
-                <widget class="QLabel" name="lbTemp2">
-                 <property name="font">
-                  <font>
-                   <pointsize>12</pointsize>
-                  </font>
+               <item row="11" column="1">
+                <widget class="QLabel" name="lbFloatState2">
+                 <property name="styleSheet">
+                  <string notr="true">color: green;font-weight: bold</string>
                  </property>
                  <property name="text">
-                  <string>0º</string>
+                  <string>Normal</string>
                  </property>
                 </widget>
                </item>
@@ -1023,8 +1158,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>671</width>
-              <height>324</height>
+              <width>911</width>
+              <height>612</height>
              </rect>
             </property>
             <attribute name="label">
@@ -1166,8 +1301,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>671</width>
-              <height>324</height>
+              <width>164</width>
+              <height>126</height>
              </rect>
             </property>
             <attribute name="label">
@@ -1347,7 +1482,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>711</width>
+     <width>951</width>
      <height>30</height>
     </rect>
    </property>
