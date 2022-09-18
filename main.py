@@ -48,6 +48,7 @@ class ProcessController(object):
         self.pump_power_high = 0
         self.level_control_enabled = False
         self.burst_en = False
+        self.sensor_nf = False
         self.f_switch_on = False
         self.burst_timer = 1
         self.cur_burst_timer = 0
@@ -92,7 +93,7 @@ class ProcessController(object):
         if ((self.ser.temp2 != -127) and (self.ser.temp2 != 0)):
             self.temp2 = self.ser.temp2
 
-        self.f_switch_on = not self.ser.f_switch
+        self.f_switch_on = self.ser.f_switch ^ self.sensor_nf
 
         if self.level_control_enabled and self.f_switch_on:
             self.pump_power = self.pump_power_high
@@ -100,7 +101,6 @@ class ProcessController(object):
             self.pump_power = self.pump_power_normal
 
         if self.burst_en:
-            print 'burst: ', self.cur_burst_timer, '-', self.burst_timer
             if (self.cur_burst_timer > 0):
                 self.pump_power = 255
                 self.cur_burst_timer -= 0.5
@@ -148,7 +148,10 @@ class ProcessController(object):
         self.timer_time_elapsed = QTime(0,0,0)
         self.timer_time_remaining = QTime(0,0,0)
         self.timer_start_time = QTime(0,0,0)
+        self.timer_cond_1 = False
+        self.timer_cond_2 = False
         self.timer_started = False
+        self.pid_reached = False
         self.IngridTimer.reset()
 
     def get_next_stage(self):
@@ -167,17 +170,33 @@ class ProcessController(object):
 
         if not self.timer_started:
             startCond = timer_data.get(u'startCond')
+            startCond2 = timer_data.get(u'startCond2')
             temp = timer_data.get(u'temp')
+            temp2 = timer_data.get(u'temp2')
             sens = timer_data.get(u'sensorSelect') if timer_data.get(u'sensorSelect') != None else 0
             cur_temp = self.temp if (sens == 0) else self.temp2
         
-            if startCond == 1:
-                self.timer_started = True
-            elif (startCond == 2) and (temp != None):
-                self.timer_started = (cur_temp >= temp)
-            elif (startCond == 3) and (temp != None):
-                self.timer_started = (cur_temp <= temp)
+            if not self.timer_cond_1:
+                if startCond == 1:
+                    self.timer_cond_1 = True
+                elif (startCond == 2) and (temp != None):
+                    self.timer_cond_1 = (cur_temp > temp)
+                elif (startCond == 3) and (temp != None):
+                    self.timer_cond_1 = (cur_temp < temp)
+
+            if self.timer_cond_1:
+                if startCond2 == 0:
+                    self.timer_cond_2 = True
+                elif (startCond2 == 1) and (temp2 != None):
+                    self.timer_cond_2 = (cur_temp > temp2)
+                elif (startCond2 == 2) and (temp2 != None):
+                    self.timer_cond_2 = (cur_temp < temp2)
             
+            self.timer_started = self.timer_cond_2
+
+            #print ('Cur temp: %.2f, temp1: %.2f, temp2: %.2f' % (cur_temp, temp, temp2) )
+            #print('st: %r, cd1: %r, cd2: %r' % (self.timer_started, self.timer_cond_1, self.timer_cond_2))
+
             if self.timer_started:
                 self.timer_start_time = QTime().currentTime()
 
@@ -265,6 +284,9 @@ class ProcessController(object):
         self.pid_sensor_selected = self.model.row_data(self.current_stage)[u'PID'].get('sen_select')
         self.pid_sensor_selected = self.pid_sensor_selected if self.pid_sensor_selected != None else 0
         
+        self.sensor_nf = self.model.row_data(self.current_stage)[u'Pump'].get('sensor_nf')
+        if self.sensor_nf is None: self.sensor_nf = False
+
         if self.model.row_data(self.current_stage)[u'Pump'].get('enabled'):
             self.pump_power_normal = self.model.row_data(self.current_stage)[u'Pump'].get('power')
             if self.pump_power_normal == None: self.pump_power_normal = 0
@@ -275,6 +297,8 @@ class ProcessController(object):
 
             self.level_control_enabled = self.model.row_data(self.current_stage)[u'Pump'].get('level_control_enabled')
             if self.level_control_enabled is None: self.level_control_enabled = False
+
+            self.model.row_data(self.current_stage)[u'Pump'].get('level_control_enabled')
 
             self.burst_en = self.model.row_data(self.current_stage)[u'Pump'].get('burst_enabled')
             

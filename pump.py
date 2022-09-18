@@ -13,12 +13,19 @@ class PumpControl(object):
         self.row = -1
         self.burst_enabled = False
         self.burst_time = 1
+        self.sensor_nf = False
         ui.sliderPumpPower.valueChanged.connect(self.set_power)
         ui.chkPumpEnabled.clicked.connect(self.set_enabled)
         ui.chkLevelControl.clicked.connect(self.set_level_control)
         ui.sliderPumpPowerHigh.valueChanged.connect(self.set_power_high)
         ui.spinMaxPwrTime.valueChanged.connect(self.set_burst_time)
         ui.chkBurst.clicked.connect(self.set_burst_enabled)
+        ui.cbSensorType.currentIndexChanged.connect(self.indexChanged)
+
+
+    def indexChanged(self, index):
+        self.sensor_nf = True if index == 1 else False
+        self.valueChanged('sensor_nf', self.sensor_nf)      
 
 
     def set_burst_time(self, val):
@@ -65,6 +72,7 @@ class PumpControl(object):
         self.power_high = data.get('power_high') if data != None and data.get('power_high') != None else 0.0
         self.burst_enabled = data.get('burst_enabled') if data != None and data.get('burst_enabled') != None else False
         self.burst_time = data.get('burst_time') if data != None and data.get('burst_time') != None else False
+        self.sensor_nf = data.get('sensor_nf') if data != None and data.get('sensor_nf') != None else False
         
 
         self.update_component_values()
@@ -76,5 +84,6 @@ class PumpControl(object):
         self.ui.sliderPumpPowerHigh.setValue(self.power_high)
         self.ui.spinMaxPwrTime.setValue(self.burst_time)
         self.ui.chkBurst.setChecked(self.burst_enabled)
+        self.ui.cbSensorType.setCurrentIndex(1 if self.sensor_nf else 0)
 
 
