@@ -1,5 +1,5 @@
-import serial
-from serial.tools.list_ports import comports
+#import serial
+#from serial.tools.list_ports import comports
 from struct import *
 import sys, time
 
@@ -117,7 +117,7 @@ class SerialInterface(object):
                 
                 self.is_connected = self.connect()
                 if self.is_connected:
-                    print 'Connected!'
+                    print('Connected!')
                 self.current_error_count = 0
                 return False
 

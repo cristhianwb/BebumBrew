@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from model import DictTableModel
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 import io
 import json
 import os
@@ -42,7 +43,7 @@ class TableControlStages(object):
         return self.tbmodel_Stages
 
     def bt_save_clicked(self):
-        fname = unicode(QFileDialog.getSaveFileName(caption='Salvar arquivo de processo',filter='Arquivo de processo (*.prc)'))
+        fname = QFileDialog.getSaveFileName(caption='Salvar arquivo de processo',filter='Arquivo de processo (*.prc)')[0]
         if (fname == u''): return
         fname, ext = os.path.splitext(fname)
         if (ext == ''): ext = '.prc'
@@ -51,7 +52,7 @@ class TableControlStages(object):
         f.close()
         
     def bt_load_clicked(self):
-        fname = unicode(QFileDialog.getOpenFileName(caption='Abrir arquivo de processo',filter='Arquivo de processo (*.prc)'))
+        fname = QFileDialog.getOpenFileName(caption='Abrir arquivo de processo',filter='Arquivo de processo (*.prc)')[0]
         if (fname == u''): return
         f = io.open(fname, "r",encoding="utf-8")
         self.tbmodel_Stages.load(json.loads(f.read()))

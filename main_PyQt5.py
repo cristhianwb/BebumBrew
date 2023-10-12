@@ -11,8 +11,7 @@ from timer import TimerControl
 from pump import PumpControl
 from model import DictTableModel
 from simple_pid import PID
-#from serial_com import * #for functioning with device use this
-from network_com import *
+from serial_com import * #for functioning with device use this
 #from serial_emulator import * #and for testing use this
 from plot import *
 import time
@@ -61,7 +60,7 @@ class ProcessController(object):
         self.model = model
         self.interval = sampling_interval
         self.pid = PID(0.0, 0.0, 0.0, setpoint=0.0, sample_time=sampling_interval, output_limits=(0, 100), auto_mode=False, proportional_on_measurement=False)
-        self.ser = NetworkCom()
+        self.ser = SerialInterface()
         self.status = False
         self.process_start_time = None
         self.stage_start_time = None
@@ -71,13 +70,23 @@ class ProcessController(object):
         self.IngridTimer = IngridentsTimer(self)
 
 
+    #a funcao process ehh chamada a cada metade da taxa de amostragem
+    #pois metade do tempo ehh para envio da potencia dos atuadores
+    #e metade do tempo ehh para receber dados do sensor de temperatura
+    #a funcao de calculo de pid ehh chamada apenas quando ehh recebida
+    #a temperatura, fechando assim o 1 intervalo de amostragem completo
+    #exemplo se a taxa de amostragem for de 1 segundo, 1/2 segundo envia
+    # 1/2 segundo recebe, calculo do pid a cada 1 segundo
     def process(self):
-                
-        self.ser.heater_power = self.output
+        #se o proximo estado do serial a ser processado ehh o de envio, setar variaveis de envio
+        if self.ser.state == ST.SEND:
+            self.ser.heater_power = self.output
+            
+            self.ser.pump_power = self.pump_power
         
-        self.ser.pump_power = self.pump_power
-        
-        #self.ser.process()
+        #processar pacote apenas quando recebe-lo
+        if not self.ser.process():
+            return
         
         if ((self.ser.temp != -127) and (self.ser.temp != 0)):
             self.temp = self.ser.temp
@@ -126,7 +135,7 @@ class ProcessController(object):
         
         if self.pid_enabled:
             cur_temp = self.temp if (self.pid_sensor_selected == 0) else self.temp2
-            print(self.pid_sensor_selected, ' - ', cur_temp)
+            print self.pid_sensor_selected, ' - ', cur_temp
             self.output = self.pid(cur_temp)
         
         self.update_outputs_to_ui()
@@ -208,7 +217,7 @@ class ProcessController(object):
 
 
     def clear_stage_status(self):
-        for i in range(0, self.model.count()):
+        for i in xrange(0, self.model.count()):
             self.model.set_field(i, u'stage_status', u'Aguardando execução...')
 
     def set_current_stage_status(self, status):
@@ -226,7 +235,7 @@ class ProcessController(object):
 
     def update_outputs_to_ui(self):
         if self.pid_enabled:
-            self.ui.sliderOutPower.setValue(int(self.output))
+            self.ui.sliderOutPower.setValue(self.output)
         powerStr = u'%.0f %%' % (self.output,)
         self.ui.labelOutPower.setText(powerStr)
         self.ui.lbHeaterPower.setText(powerStr)
@@ -284,7 +293,7 @@ class ProcessController(object):
             if self.pump_power_normal == None: self.pump_power_normal = 0
             
             self.pump_power_high = self.model.row_data(self.current_stage)[u'Pump'].get('power_high')
-            print(self.pump_power_high)
+            print self.pump_power_high
             if self.pump_power_high is None: self.pump_power_high = 0
 
             self.level_control_enabled = self.model.row_data(self.current_stage)[u'Pump'].get('level_control_enabled')
@@ -322,14 +331,15 @@ class ProcessController(object):
 
         if self.timer_state == TimerState.STOPPED:
             self.load_pid_params()
+            self.ser.status = ST.SEND
             self.reset_timers(True)
             self.clear_stage_status()
         self.set_current_stage_status(u'Em execução')
         self.update_stage_status_to_ui()
-        self.timer.start( int((self.interval) * 1000))
+        print (self.interval / 2) * 1000
+        self.timer.start( (self.interval / 2) * 1000)
         self.timer_state = TimerState.RUNNING
         self.plot_control.start()
-        self.ser.start()
         
     
     def stop(self):
@@ -338,12 +348,11 @@ class ProcessController(object):
         if reply == QMessageBox.No: return
         self.timer.stop()
         self.plot_control.stop()
-        self.ser.stop()
+        self.ser.disconnect()
         self.set_current_stage_status(u'Processo concluído')
         self.update_stage_status_to_ui()
         self.current_stage = 0
         self.timer_state = TimerState.STOPPED
-        
     
     def pause(self):
         if self.timer_state != TimerState.RUNNING: return
@@ -352,7 +361,6 @@ class ProcessController(object):
         self.update_stage_status_to_ui()
         self.timer.stop()
         self.plot_control.stop()
-        self.ser.stop()
 
 
     def goto_prev_stage(self):
@@ -400,13 +408,6 @@ if __name__ == "__main__":
     MainWindow.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
     MainWindow.setWindowState(QtCore.Qt.WindowMaximized) 
     MainWindow.show()
-        
-    res = app.exec_()
-    processController.ser.exit()
-    processController.ser.thread.join()
-    print("exiting")
-    sys.exit(res)
-
-
+    sys.exit(app.exec_())
     
     

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtCore import QTime
+from PyQt5.QtCore import QTime
 
 
 class PumpControl(object):
     def __init__(self, ui, model):
         self.enabled = False
-        self.power = 0.0
-        self.power_high = 0.0
+        self.power = 0
+        self.power_high = 0
         self.level_control_enabled = False
         self.ui = ui
         self.model = model
@@ -67,9 +67,9 @@ class PumpControl(object):
     
     def fromDict(self, data):
         self.enabled = data.get('enabled') if data != None and data.get('enabled') != None else False
-        self.power = data.get('power') if data != None and data.get('power') != None else 0.0
+        self.power = data.get('power') if data != None and data.get('power') != None else 0
         self.level_control_enabled = data.get('level_control_enabled') if data != None and data.get('level_control_enabled') != None else False
-        self.power_high = data.get('power_high') if data != None and data.get('power_high') != None else 0.0
+        self.power_high = data.get('power_high') if data != None and data.get('power_high') != None else 0
         self.burst_enabled = data.get('burst_enabled') if data != None and data.get('burst_enabled') != None else False
         self.burst_time = data.get('burst_time') if data != None and data.get('burst_time') != None else False
         self.sensor_nf = data.get('sensor_nf') if data != None and data.get('sensor_nf') != None else False
