@@ -397,8 +397,8 @@ if __name__ == "__main__":
     tableControlIngridients = TableControlIngridients(ui, tbmodel_Ingridients)
     tableControlStages.set_IngridientsControl(tableControlIngridients)
     processController = ProcessController(ui, tbmodel_Stages)
-    MainWindow.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
-    MainWindow.setWindowState(QtCore.Qt.WindowMaximized) 
+    #MainWindow.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
+    #MainWindow.setWindowState(QtCore.Qt.WindowMaximized) 
     MainWindow.show()
         
     res = app.exec_()

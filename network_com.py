@@ -8,7 +8,7 @@ import time
 
 
 class NetworkCom(object):
-	def __init__(self, addr='http://192.168.1.144/'):
+	def __init__(self, addr='http://192.168.1.6:1000/'):
 		self.addr = addr
 		self.temp = 0.0
 		self.temp2 = 0.0
@@ -42,9 +42,8 @@ class NetworkCom(object):
 		while self.running:
 			if not self.started: continue
 			tick = time.perf_counter()
-			if ((tick - self.last_tick) < 2):
+			if ((tick - self.last_tick) < 1):
 				continue
-						
 			self.last_tick = tick
 
 			if (self.pump_power != self.old_pump_power):
@@ -58,7 +57,9 @@ class NetworkCom(object):
 					req = requests.post(self.addr, json=self.values_to_send, headers={'Accept': 'application/json'}, timeout=2)
 					self.values_to_send = {}
 				else:
+					print('requesting pack %f' % (tick,))			
 					req = requests.get(self.addr, headers={'Accept': 'application/json'}, timeout=2)
+					print('pack received %f' % (tick,))			
 					
 				if (req.status_code == 200):
 					res = req.json()

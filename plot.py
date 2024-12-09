@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import numpy as np
+
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
