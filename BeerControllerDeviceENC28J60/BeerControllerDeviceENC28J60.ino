@@ -104,7 +104,7 @@ void respond(METHOD method, char* msg, EthernetClient client){
 
   String json_response_str = JSON.stringify(jsonResponse);
   json_size = json_response_str.length();
-  res_size = strlen(response_format_str) +  + 10;
+  res_size = strlen(response_format_str) + json_size + 10;
   char * response_str = (char*) malloc(res_size * sizeof(char));
   res_size = sprintf(response_str, response_format_str, json_size, json_response_str.c_str());
   client.write(response_str, res_size);
