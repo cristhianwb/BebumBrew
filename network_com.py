@@ -8,7 +8,7 @@ import time
 
 
 class NetworkCom(object):
-	def __init__(self, addr='http://192.168.1.6:1000/'):
+	def __init__(self, addr='http://192.168.1.6:80/'):
 		self.addr = addr
 		self.temp = 0.0
 		self.temp2 = 0.0
