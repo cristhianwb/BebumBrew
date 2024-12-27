@@ -16,8 +16,8 @@
 
 //Device Pin Out Definition
 #define PUMP_MOSFET_PIN   13
-#define ONE_WIRE_BUS_PIN  5
-#define LEVEL_SENSOR_PIN  4
+#define ONE_WIRE_BUS_PIN  10
+#define LEVEL_SENSOR_PIN  12
 #define HEATER_TRIAC_PIN  3
 //#define IND_LED_PIN       0
 //#define DIMMER_ZERO_CROSS_PIN       2 (Defined in Dimmer.h)
@@ -30,6 +30,10 @@ int pump_power;
 double temp_sensor1 = 0;
 double temp_sensor2 = 0;
 bool level_sensor = false;
+
+unsigned long last_millis;
+unsigned long current_millis;
+const unsigned long sampling_interval = 1000;
 
 
 //Sensor temperatura
@@ -63,10 +67,17 @@ bool set_pump_power(int power){
 }
 
 bool read_sensors(){
+  Serial.println("Reading sensors...");
   temp_sensor1 = sensors.getTempCByIndex(0);
   temp_sensor2 = sensors.getTempCByIndex(1);
+  Serial.print("Temp 1: ");
+  Serial.println(temp_sensor1);
+  Serial.print("Temp 2: ");
+  Serial.println(temp_sensor2);
   sensors.requestTemperatures(); 
   level_sensor = !digitalRead(LEVEL_SENSOR_PIN);
+  Serial.print("Level: ");
+  Serial.println(level_sensor ? "HIGH" : "LOW" );
   return true;
 }
 
@@ -159,17 +170,24 @@ void setup() {
   #endif
 
   Serial.begin(9600);
+  heater.begin();
+
+  sensors.setWaitForConversion(false);
+  sensors.begin();
+  
   
 //  Ethernet.begin(mac,myIP);
   Ethernet.begin(mac,myIP,myDNS,myGW,myMASK);
 
   server.begin();
+  last_millis = millis();
 }
 
-int last_millis = 0;
+
 
 void loop() {
-  if ((last_millis - millis()) >= 1000){
+  current_millis =  millis();
+  if (current_millis - last_millis >= sampling_interval){
     read_sensors();
     last_millis = millis();
   }
