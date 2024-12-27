@@ -60,7 +60,10 @@ bool set_heater_power(int power){
 bool set_pump_power(int power){
   if (((power>=0) && (power<=100)) && (power != pump_power)){
     pump_power = power;
-    analogWrite(PUMP_MOSFET_PIN, int((pump_power / 100.0) * 128.0));    
+    int p_power = (pump_power / 100.0) * 255.0;
+    Serial.print("Pump power: ");
+    Serial.println(p_power);
+    analogWrite(PUMP_MOSFET_PIN, p_power);    
     return true;
   }
   return false;  
