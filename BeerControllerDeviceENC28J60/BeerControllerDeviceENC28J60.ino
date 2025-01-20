@@ -34,10 +34,15 @@ double temp_sensor1 = 0;
 double temp_sensor2 = 0;
 //pump control variables
 bool level_sensor_reached = false;  //Indica quando o sensor atingir o limite da panela
-bool level_control_on = false;      //Indica se deve controlar o nivel da panela pela bomba utilizando o sensor de nivel
-bool level_switch_nf = false;       //Indica se o nível é atingido quando o sensor fecha ou abre 
+bool level_control_on = true;      //Indica se deve controlar o nivel da panela pela bomba utilizando o sensor de nivel
+bool level_switch_nf = true;       //Indica se o nível é atingido quando o sensor fecha ou abre 
 int pump_power;                      //Potência da bomba 
-int pump_power_level_reached;        //Potência da bomba quando o nível é atingido  
+int pump_power_level_reached = 10;        //Potência da bomba quando o nível é atingido
+bool pump_burst_en = false;
+bool pump_burst = false;
+uint8_t pump_burst_time = 5;
+uint8_t burst_timer;
+int p_power;  
 
 
 unsigned long last_millis;
@@ -71,11 +76,13 @@ bool set_heater_power(int power){
 
 bool set_pump_power(int power){
   if (((power>=0) && (power<=100)) && (power != pump_power)){
-    pump_power = power;
-    int p_power = (pump_power / 100.0) * 255.0;
-    Serial.print("Pump power: ");
-    Serial.println(p_power);
-    analogWrite(PUMP_MOSFET_PIN, p_power);    
+    //Se eu liguei a bomba e tem burst ativado (potencia maxima na partida)
+    //Dispara o burst
+    if ((pump_power == 0) && (power > 0) && pump_burst_en){
+      timers.startTimer(burst_timer);
+      pump_burst = true;    
+    }
+    pump_power = power;    
     return true;
   }
   return false;  
@@ -153,6 +160,82 @@ void handle_requests(EthernetClient client){
    
 }
 
+bool read_sensors(){
+  Serial.println("Reading sensors...");
+  
+
+  double temp_sens1 = 0;
+  double temp_sens2 = 0;
+
+  temp_sens1 =  sensors.getTempCByIndex(0);
+  temp_sens2 = sensors.getTempCByIndex(1);
+  
+  // Serial.print("Read attempts Sen1: ");
+  // Serial.println(read_attempts_counter_sen1);
+
+  // Serial.print("Read attempts Sen1: ");
+  // Serial.println(read_attempts_counter_sen2);
+
+
+  if (temp_sens1 != -127){
+    temp_sensor1 = temp_sens1;
+    read_attempts_counter_sen1 = READ_ATTEMPTS;
+  } else {
+    read_attempts_counter_sen1--;
+    if (read_attempts_counter_sen1 == 0){
+      temp_sensor1 = 0;
+      read_attempts_counter_sen1 = READ_ATTEMPTS;
+    }      
+  }
+
+  if (temp_sens2 != -127){
+    temp_sensor2 = temp_sens2;
+    read_attempts_counter_sen2 = READ_ATTEMPTS;
+  } else {
+    read_attempts_counter_sen2--;
+    if (read_attempts_counter_sen2 == 0){
+      temp_sensor1 = 0;
+      read_attempts_counter_sen2 = READ_ATTEMPTS;
+    }
+  }
+
+  sensors.requestTemperatures();
+  
+  Serial.print("Pump power: ");
+  Serial.println(p_power);
+  Serial.print("Temp 1: ");
+  Serial.println(temp_sensor1);
+  Serial.print("Temp 2: ");
+  Serial.println(temp_sensor2);
+  
+  return true;
+}
+
+bool finish_pump_burst(){
+  Serial.println("Burst terminado");
+  pump_burst = false;
+  return false;
+}
+
+bool control_pump(){
+  
+
+  level_sensor_reached = digitalRead(LEVEL_SENSOR_PIN) ^ level_switch_nf;
+
+  p_power = (level_control_on && level_sensor_reached) ? pump_power_level_reached : pump_power;   
+  
+  if (pump_power > 0){
+    p_power = ((p_power / 100.0) * (255.0 - PUMP_POWER_MIN)) + PUMP_POWER_MIN;
+    //Se tem burst ativado, deve ligar a bomba no maximo
+    if (pump_burst) p_power = 255;      
+  }else
+    p_power = 0;
+
+  
+  analogWrite(PUMP_MOSFET_PIN, p_power);
+  return true;  
+}
+
 void setup() {
 
   uint8_t mac[6] = {MACADDRESS};
@@ -182,89 +265,13 @@ void setup() {
   server.begin();
   timers.addTimer(sampling_interval, true, read_sensors);
   timers.addTimer(50, true, control_pump);
-  //last_millis = millis();
-}
-
-bool read_sensors(){
-  Serial.println("Reading sensors...");
-
-  double temp_sens1 = 0;
-  double temp_sens2 = 0;
-
-  temp_sens1 =  sensors.getTempCByIndex(0);
-  temp_sens2 = sensors.getTempCByIndex(1);
-  
-  Serial.print("Read attempts Sen1: ");
-  Serial.println(read_attempts_counter_sen1);
-
-  Serial.print("Read attempts Sen1: ");
-  Serial.println(read_attempts_counter_sen2);
-
-  if (temp_sens1 != -127){
-    temp_sensor1 = temp_sens1;
-    read_attempts_counter_sen1 = READ_ATTEMPTS;
-  } else {
-    read_attempts_counter_sen1--;
-    if (read_attempts_counter_sen1 == 0){
-      temp_sensor1 = 0;
-      read_attempts_counter_sen1 = READ_ATTEMPTS;
-    }      
-  }
-
-  if (temp_sens2 != -127){
-    temp_sensor2 = temp_sens2;
-    read_attempts_counter_sen2 = READ_ATTEMPTS;
-  } else {
-    read_attempts_counter_sen2--;
-    if (read_attempts_counter_sen2 == 0){
-      temp_sensor1 = 0;
-      read_attempts_counter_sen2 = READ_ATTEMPTS;
-    }
-  }
-
-  sensors.requestTemperatures();
-
-  Serial.print("Temp 1: ");
-  Serial.println(temp_sensor1);
-  Serial.print("Temp 2: ");
-  Serial.println(temp_sensor2);
-  
-  
-  return true;
-}
-
-bool control_pump(){
-  int p_power;
-
-  level_sensor_reached = digitalRead(LEVEL_SENSOR_PIN) ^ level_switch_nf;
-
-  p_power = (level_control_on && level_sensor_reached) ? pump_power_level_reached : pump_power;   
-  p_power = ((p_power / 100.0) * (255.0 - PUMP_POWER_MIN));
-
-  Serial.print("Pump power: ");
-  Serial.println(p_power);
-  
-  analogWrite(PUMP_MOSFET_PIN, 0);
-  return true;  
+  burst_timer = timers.addTimer(pump_burst_time * 1000, false, finish_pump_burst);
 }
 
 
 void loop() {
 
-  /*current_millis =  millis();
-
-  if ((current_millis - last_millis) >= sampling_interval){
-      read_sensors();
-      Serial.print("Level: ");
-      Serial.println(level_sensor_reached ? "HIGH" : "LOW" );
-  
-      last_millis = millis();
-  }*/
-
-  
-
   timers.update();
-  //control_pump();
 
   if (EthernetClient client = server.available())
     {

@@ -37,6 +37,7 @@ uint8_t UserTimer::addTimer(int time_millis, bool auto_start, timer_callback_t t
 void UserTimer::startTimer(uint8_t timer_index){
   if (timer_index < timerCount){
     timerStates[timer_index] = true;
+    lastMillisArray[timer_index] = millis();
   }
 }
 

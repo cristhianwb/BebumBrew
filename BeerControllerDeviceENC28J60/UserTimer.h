@@ -12,7 +12,7 @@ typedef bool (*timer_callback_t) (uint8_t);
  * */
 class UserTimer {
   public:
-    
+    bool* timerStates;
     UserTimer();
 
     
@@ -31,16 +31,11 @@ class UserTimer {
 
   private:
     uint8_t timerCount;
-    bool* timerStates;
+    
     unsigned long* lastMillisArray;
     unsigned long* timerTimes;
     timer_callback_t* callbacks;
-    
-
-    void zeroCross();
-
-    friend void callTriac();
-    friend void callZeroCross();
+  
 };
 
 #endif
