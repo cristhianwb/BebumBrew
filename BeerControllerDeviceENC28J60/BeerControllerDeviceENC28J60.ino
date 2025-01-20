@@ -13,6 +13,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include "Dimmer.h"
+#include "UserTimer.h"
 
 //Device Pin Out Definition
 #define PUMP_MOSFET_PIN   13
@@ -22,19 +23,32 @@
 //#define IND_LED_PIN       0
 //#define DIMMER_ZERO_CROSS_PIN       2 (Defined in Dimmer.h)
 
+#define READ_ATTEMPTS 15
+#define PUMP_POWER_MIN  64
+
 typedef enum {GET, POST} METHOD;
 
 //Variaveis globais dos sensores e atuadores
 int heater_power;
-int pump_power;
 double temp_sensor1 = 0;
 double temp_sensor2 = 0;
-bool level_sensor = false;
+//pump control variables
+bool level_sensor_reached = false;  //Indica quando o sensor atingir o limite da panela
+bool level_control_on = false;      //Indica se deve controlar o nivel da panela pela bomba utilizando o sensor de nivel
+bool level_switch_nf = false;       //Indica se o nível é atingido quando o sensor fecha ou abre 
+int pump_power;                      //Potência da bomba 
+int pump_power_level_reached;        //Potência da bomba quando o nível é atingido  
+
 
 unsigned long last_millis;
 unsigned long current_millis;
 const unsigned long sampling_interval = 1000;
 
+bool sensor1_read = false;
+bool sensor2_read = false;
+
+int read_attempts_counter_sen1 = READ_ATTEMPTS;
+int read_attempts_counter_sen2 = READ_ATTEMPTS;
 
 //Sensor temperatura
 OneWire oneWire(ONE_WIRE_BUS_PIN);
@@ -44,9 +58,7 @@ Dimmer heater(HEATER_TRIAC_PIN);
 //Servidor
 EthernetServer server = EthernetServer(LISTENPORT);
 
-
-
-
+UserTimer timers;
 
 bool set_heater_power(int power){
   if (((power>=0) && (power<=100)) && (power != heater_power)){
@@ -69,20 +81,6 @@ bool set_pump_power(int power){
   return false;  
 }
 
-bool read_sensors(){
-  Serial.println("Reading sensors...");
-  temp_sensor1 = sensors.getTempCByIndex(0);
-  temp_sensor2 = sensors.getTempCByIndex(1);
-  Serial.print("Temp 1: ");
-  Serial.println(temp_sensor1);
-  Serial.print("Temp 2: ");
-  Serial.println(temp_sensor2);
-  sensors.requestTemperatures(); 
-  level_sensor = !digitalRead(LEVEL_SENSOR_PIN);
-  Serial.print("Level: ");
-  Serial.println(level_sensor ? "HIGH" : "LOW" );
-  return true;
-}
 
 void respond(METHOD method, char* msg, EthernetClient client){
   char * response_cstr;
@@ -111,7 +109,7 @@ void respond(METHOD method, char* msg, EthernetClient client){
 
   jsonResponse["temp1"] = temp_sensor1;
   jsonResponse["temp2"] = temp_sensor2;
-  jsonResponse["level"] = level_sensor;
+  jsonResponse["level"] = level_sensor_reached;
   const char* const response_format_str = "HTTP/1.1 200 OK"
                                           "Content-Type: text/html"
                                           "Content-Length: %d\r\n\r\n%s";
@@ -149,9 +147,6 @@ void handle_requests(EthernetClient client){
       respond(method, strstr(msg, "\r\n\r\n")+(4 * sizeof(char)), client); 
     } 
     
-    //Serial.write(msg, size);
-    //Serial.print("Size: ");
-    //Serial.println(size);
     free(msg);
   }
 
@@ -173,27 +168,103 @@ void setup() {
   #endif
 
   Serial.begin(9600);
-  heater.begin();
 
   sensors.setWaitForConversion(false);
   sensors.begin();
+  sensors.requestTemperatures();
+
+  heater.begin();
   
   
 //  Ethernet.begin(mac,myIP);
   Ethernet.begin(mac,myIP,myDNS,myGW,myMASK);
 
   server.begin();
-  last_millis = millis();
+  timers.addTimer(sampling_interval, true, read_sensors);
+  timers.addTimer(50, true, control_pump);
+  //last_millis = millis();
+}
+
+bool read_sensors(){
+  Serial.println("Reading sensors...");
+
+  double temp_sens1 = 0;
+  double temp_sens2 = 0;
+
+  temp_sens1 =  sensors.getTempCByIndex(0);
+  temp_sens2 = sensors.getTempCByIndex(1);
+  
+  Serial.print("Read attempts Sen1: ");
+  Serial.println(read_attempts_counter_sen1);
+
+  Serial.print("Read attempts Sen1: ");
+  Serial.println(read_attempts_counter_sen2);
+
+  if (temp_sens1 != -127){
+    temp_sensor1 = temp_sens1;
+    read_attempts_counter_sen1 = READ_ATTEMPTS;
+  } else {
+    read_attempts_counter_sen1--;
+    if (read_attempts_counter_sen1 == 0){
+      temp_sensor1 = 0;
+      read_attempts_counter_sen1 = READ_ATTEMPTS;
+    }      
+  }
+
+  if (temp_sens2 != -127){
+    temp_sensor2 = temp_sens2;
+    read_attempts_counter_sen2 = READ_ATTEMPTS;
+  } else {
+    read_attempts_counter_sen2--;
+    if (read_attempts_counter_sen2 == 0){
+      temp_sensor1 = 0;
+      read_attempts_counter_sen2 = READ_ATTEMPTS;
+    }
+  }
+
+  sensors.requestTemperatures();
+
+  Serial.print("Temp 1: ");
+  Serial.println(temp_sensor1);
+  Serial.print("Temp 2: ");
+  Serial.println(temp_sensor2);
+  
+  
+  return true;
+}
+
+bool control_pump(){
+  int p_power;
+
+  level_sensor_reached = digitalRead(LEVEL_SENSOR_PIN) ^ level_switch_nf;
+
+  p_power = (level_control_on && level_sensor_reached) ? pump_power_level_reached : pump_power;   
+  p_power = ((p_power / 100.0) * (255.0 - PUMP_POWER_MIN));
+
+  Serial.print("Pump power: ");
+  Serial.println(p_power);
+  
+  analogWrite(PUMP_MOSFET_PIN, 0);
+  return true;  
 }
 
 
-
 void loop() {
-  current_millis =  millis();
-  if (current_millis - last_millis >= sampling_interval){
-    read_sensors();
-    last_millis = millis();
-  }
+
+  /*current_millis =  millis();
+
+  if ((current_millis - last_millis) >= sampling_interval){
+      read_sensors();
+      Serial.print("Level: ");
+      Serial.println(level_sensor_reached ? "HIGH" : "LOW" );
+  
+      last_millis = millis();
+  }*/
+
+  
+
+  timers.update();
+  //control_pump();
 
   if (EthernetClient client = server.available())
     {
