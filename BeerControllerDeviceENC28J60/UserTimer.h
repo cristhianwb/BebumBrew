@@ -13,13 +13,13 @@ typedef bool (*timer_callback_t) (uint8_t);
 class UserTimer {
   public:
     bool* timerStates;
-    UserTimer();
 
-    
+    UserTimer();
+  
     void update();
 
     /*
-      The callback should return true if wants to continue to be called, otherwise should turn false (if wants to be called once), 
+      The callback should return true if wants to continue to be called, otherwise should return false (if wants to be called once), 
       this is why she returns a bool value
     */
 

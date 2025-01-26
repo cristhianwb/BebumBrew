@@ -77,7 +77,6 @@ class ProcessController(object):
         
         self.ser.pump_power = self.pump_power
         
-        #self.ser.process()
         
         if ((self.ser.temp != -127) and (self.ser.temp != 0)):
             self.temp = self.ser.temp
@@ -85,25 +84,9 @@ class ProcessController(object):
         if ((self.ser.temp2 != -127) and (self.ser.temp2 != 0)):
             self.temp2 = self.ser.temp2
 
-        self.f_switch_on = self.ser.f_switch ^ self.sensor_nf
+        self.f_switch_on = self.ser.f_switch
 
-        if self.level_control_enabled and self.f_switch_on:
-            self.pump_power = self.pump_power_high
-        else:
-            self.pump_power = self.pump_power_normal
-
-        if self.burst_en:
-            if (self.cur_burst_timer > 0):
-                self.pump_power = 255
-                self.cur_burst_timer -= 0.5
-            else:
-                if (self.pump_power != self.old_pump_power):
-                    if (self.old_pump_power == 0) and (self.pump_power > 0):
-                        self.cur_burst_timer = self.burst_timer
-                    self.old_pump_power = self.pump_power
-
-
-
+        
 
         next_stage = self.get_next_stage()
         state_changed = (next_stage != self.current_stage)
@@ -121,8 +104,16 @@ class ProcessController(object):
 
         #print self.temp
         #if pid parameters has changed, they should affect here
-        if (self.get_pid_control_changed() or self.get_pump_control_changed() or state_changed):
+        if (self.get_pid_control_changed() or state_changed):
             self.load_pid_params()
+
+        change_list = self.model.row_data(self.current_stage)[u'Pump'].get(u'changed')
+        
+        if change_list:
+            print(change_list)
+            for p in change_list:
+                self.ser.pump_parameters[p] = self.model.row_data(self.current_stage)[u'Pump'].get(p)
+            change_list.clear()
         
         if self.pid_enabled:
             cur_temp = self.temp if (self.pid_sensor_selected == 0) else self.temp2
@@ -258,12 +249,6 @@ class ProcessController(object):
             return True
         return False
 
-    def get_pump_control_changed(self):
-        changed = self.model.row_data(self.current_stage)[u'Pump'].get(u'changed')
-        if changed:
-            self.model.row_data(self.current_stage)[u'Pump'][u'changed'] = False
-            return True
-        return False
     
     def load_pid_params(self):
         p = self.model.row_data(self.current_stage)[u'PID'].get('p_value')

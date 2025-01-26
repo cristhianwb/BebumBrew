@@ -75,7 +75,7 @@ class IngridientsDictTableModel(QAbstractTableModel):
         
     def setData(self, index, value, role):
         if role == Qt.EditRole:
-            self.rows[index.row()][u'columns'][self.fields[index.column()]] = unicode(value.toString().toUtf8(), encoding="UTF-8")
+            self.rows[index.row()][u'columns'][self.fields[index.column()]] = value
             self.dataChanged.emit(index, index)
             self.table.resizeColumnsToContents()
             return True
@@ -160,7 +160,7 @@ class TimeEditDelegate(QStyledItemDelegate):
 
     def setEditorData(self, editor, index):
         editor.blockSignals(True)
-        editor.setTime(QTime.fromString(index.model().data(index, Qt.DisplayRole).toString(), u'hh:mm:ss'))
+        editor.setTime(QTime(QTime.fromString(str(index.model().data(index, Qt.DisplayRole)))))
         editor.blockSignals(False)
     
     def setModelData(self, editor, model, index):

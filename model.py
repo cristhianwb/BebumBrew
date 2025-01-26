@@ -28,7 +28,7 @@ class DictTableModel(QAbstractTableModel):
         
     def setData(self, index, value, role):
         if role == Qt.EditRole:
-            self.rows[index.row()][u'columns'][self.fields[index.column()]] = unicode(value.toString().toUtf8(), encoding="UTF-8")
+            self.rows[index.row()][u'columns'][self.fields[index.column()]] = value
             self.dataChanged.emit(index, index)
             self.table.resizeColumnsToContents()
             return True

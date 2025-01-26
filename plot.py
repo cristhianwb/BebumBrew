@@ -53,7 +53,7 @@ class PlotControl(object):
         self.graphWidget.setBackground('w')
 
         
-        self.graphWidget.setTitle("Mosturação", color="b", size="30pt")
+        self.graphWidget.setTitle("Mosturação", color="b", size="28pt")
         # Add Axis Labels
         styles = {"color": "#f00", "font-size": "20px"}
         self.graphWidget.setLabel("left", "Temperature (°C)", **styles)
@@ -77,12 +77,13 @@ class PlotControl(object):
 
         ui.zoomSlider.valueChanged.connect(self.zoom_changed)
                 
+        #pg.mkPen(color=color, width=width)
 
-        ui.pushPumpColor.clicked.connect(lambda: self.pump_power_line.set_color(self.set_button_color(ui.pushPumpColor)))
-        ui.pushHeaterColor.clicked.connect(lambda: self.heater_power_line.set_color(self.set_button_color(ui.pushHeaterColor)))
-        ui.pushSensor1Color.clicked.connect(lambda: self.sensor1_line.set_color(self.set_button_color(ui.pushSensor1Color)))
-        ui.pushSensor2Color.clicked.connect(lambda: self.sensor2_line.set_color(self.set_button_color(ui.pushSensor2Color)))
-        ui.pushSetpointColor.clicked.connect(lambda: self.sensor2_line.set_color(self.set_button_color(ui.pushSetpointColor)))
+        ui.pushPumpColor.clicked.connect(lambda: self.pump_power_line.setPen(pg.mkPen(color=self.set_button_color(ui.pushPumpColor), width=2)))
+        ui.pushHeaterColor.clicked.connect(lambda: self.heater_power_line.setPen(pg.mkPen(color=self.set_button_color(ui.pushHeaterColor),width=2)))
+        ui.pushSensor1Color.clicked.connect(lambda: self.sensor1_line.setPen(pg.mkPen(color=self.set_button_color(ui.pushSensor1Color),width=2)))
+        ui.pushSensor2Color.clicked.connect(lambda: self.sensor2_line.setPen(pg.mkPen(color=self.set_button_color(ui.pushSensor2Color),width=2)))
+        ui.pushSetpointColor.clicked.connect(lambda: self.sensor2_line.setPen(pg.mkPen(color=self.set_button_color(ui.pushSetpointColor),width=2)))
         
         ui.chkSensor1Line.clicked.connect(lambda x: self.sensor1_line.setVisible(x))
         ui.chkSensor2Line.clicked.connect(lambda x: self.sensor2_line.setVisible(x))
@@ -157,7 +158,7 @@ class PlotControl(object):
         xcolor = QColor(color) if color is not None else QColorDialog.getColor()
         if (not xcolor.isValid()):
             return rgb_from_qcolor(wich_button.palette().button().color())
-        wich_button.setStyleSheet("background-color: %s" % (xcolor.name(),))
+        wich_button.setStyleSheet("background-color: %s; border: none" % (xcolor.name(),))
         return rgb_from_qcolor(QColor(xcolor))
 
 
@@ -200,7 +201,7 @@ class PlotControl(object):
         
 
     def add_mark(self, text):
-        pass
+        self.graphWidget.setTitle(text, color="b", size="28pt")
         # mark_position = self.data['sample_count']# - 1 if (self.data['sample_count'] > 0) else 0
         # mark = (mark_position, text)
         # self.data['marks'].append(mark)

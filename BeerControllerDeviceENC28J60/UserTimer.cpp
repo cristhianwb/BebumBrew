@@ -1,7 +1,3 @@
-/** @file
-
- */
-
 #include "Arduino.h"
 #include "UserTimer.h"
 
@@ -42,13 +38,13 @@ void UserTimer::startTimer(uint8_t timer_index){
 }
 
 void UserTimer::stopTimer(uint8_t timer_index){
-
+ if (timer_index < timerCount){
+    timerStates[timer_index] = false;
+  }
 }
 
 void UserTimer::update(){
   unsigned long current_millis;
-
-  //Serial.println("Timer updated");
 
   for (uint8_t i = 0;i < timerCount; i++){
     current_millis =  millis();

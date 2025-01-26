@@ -15,8 +15,7 @@ class NetworkCom(object):
 		self.f_switch = False
 		self.heater_power = 0
 		self.old_heater_power = 0
-		self.pump_power = 0
-		self.old_pump_power = 0
+		self.pump_parameters = {}
 		self.has_changed = False
 		self.values_to_send = {}
 		self.thread = threading.Thread(target=self.process)
@@ -34,6 +33,7 @@ class NetworkCom(object):
 
 	def stop(self):
 		self.started = False
+
 	def exit(self):
 		self.running = False
 
@@ -46,9 +46,9 @@ class NetworkCom(object):
 				continue
 			self.last_tick = tick
 
-			if (self.pump_power != self.old_pump_power):
-				self.values_to_send['pump_power'] = self.pump_power
-				self.old_pump_power = self.pump_power
+			if self.pump_parameters:
+				self.values_to_send[u'pump'] = self.pump_parameters
+			
 			if (self.heater_power != self.old_heater_power):
 				self.values_to_send['heater_power'] = self.heater_power
 				self.old_heater_power = self.heater_power
@@ -57,17 +57,17 @@ class NetworkCom(object):
 					req = requests.post(self.addr, json=self.values_to_send, headers={'Accept': 'application/json'}, timeout=2)
 					self.values_to_send = {}
 				else:
-					print('requesting pack %f' % (tick,))			
-					req = requests.get(self.addr, headers={'Accept': 'application/json'}, timeout=2)
-					print('pack received %f' % (tick,))			
+					req = requests.get(self.addr, headers={'Accept': 'application/json'}, timeout=2)			
 					
 				if (req.status_code == 200):
+					self.pump_parameters.clear()
+					self.values_to_send.clear()
 					res = req.json()
 					if res.get('temp1'):
 						self.temp = float(res.get('temp1'))
 					if res.get('temp2'):
 						self.temp2 = float(res.get('temp2'))
-					if res.get('level'):
+					if res.get('level') is not None:
 						self.f_switch = bool(res.get('level'))
 			except:
 				pass

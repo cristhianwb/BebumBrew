@@ -29,21 +29,20 @@
 typedef enum {GET, POST} METHOD;
 
 //Variaveis globais dos sensores e atuadores
-int heater_power;
+int heater_power = 0;
 double temp_sensor1 = 0;
 double temp_sensor2 = 0;
 //pump control variables
 bool level_sensor_reached = false;  //Indica quando o sensor atingir o limite da panela
-bool level_control_on = true;      //Indica se deve controlar o nivel da panela pela bomba utilizando o sensor de nivel
-bool level_switch_nf = true;       //Indica se o nível é atingido quando o sensor fecha ou abre 
-int pump_power;                      //Potência da bomba 
-int pump_power_level_reached = 10;        //Potência da bomba quando o nível é atingido
-bool pump_burst_en = false;
-bool pump_burst = false;
-uint8_t pump_burst_time = 5;
-uint8_t burst_timer;
-int p_power;  
-
+bool level_control_on = false;      //Indica se deve controlar o nivel da panela pela bomba utilizando o sensor de nivel
+bool level_switch_nf = false;       //Indica se o nível é atingido quando o sensor fecha ou abre 
+int pump_power = 0;                      //Potência da bomba 
+uint8_t pump_power_level_reached = 0;        //Potência da bomba quando o nível é atingido
+bool pump_burst_en = false;           //Potencia maxima na partida ativado
+bool pump_burst = false;              //Potencia maxima acionada quando muda de 0 para qualquer valor > 0
+uint8_t pump_burst_time = 5;          //Tempo em segundos com potência máxima
+uint8_t burst_timer;                  //Timer de usuário para controlar o tempo de potência maxima
+int p_power;                          
 
 unsigned long last_millis;
 unsigned long current_millis;
@@ -88,10 +87,17 @@ bool set_pump_power(int power){
   return false;  
 }
 
+bool set_int8_value(uint8_t value, uint8_t* variable, int min, int max){
+  if ((value >= min) && (value <= max)){
+    *variable = value;
+    return true;
+  }
+  return false;
+}
 
 void respond(METHOD method, char* msg, EthernetClient client){
   char * response_cstr;
-  JSONVar jsonObj;
+  JSONVar jsonObj, pump;
   JSONVar jsonResponse;
   size_t res_size, json_size;
   
@@ -101,16 +107,50 @@ void respond(METHOD method, char* msg, EthernetClient client){
 
   if (method == POST){
     jsonObj = JSON.parse(msg);
+    
+
     if (JSON.typeof(jsonObj) != "undefined"){
       if ((JSON.typeof(jsonObj["heater_power"]) == "number") && set_heater_power(jsonObj["heater_power"])){
         Serial.print("Heater power changed to : ");
         Serial.println(heater_power);
       }
       
-      if ((JSON.typeof(jsonObj["pump_power"]) == "number") && set_pump_power(jsonObj["pump_power"])){
-        Serial.print("Pump power changed to : ");
-        Serial.println(pump_power);
-      }        
+      if ((JSON.typeof(jsonObj["pump"]) == "object")){
+        pump = jsonObj["pump"];
+
+        if ((JSON.typeof(pump["power"]) == "number") && set_pump_power(pump["power"])){
+          Serial.print("Pump power changed to : ");
+          Serial.println(pump_power);
+        }
+
+        if ((JSON.typeof(pump["power_level_reached"]) == "number") && set_int8_value(pump["power_level_reached"], &pump_power_level_reached, 0, 100)){
+          Serial.print("power_level_reached changed to : ");
+          Serial.println(pump_power_level_reached);
+        }
+
+        if ((JSON.typeof(pump["burst_time"]) == "number") && set_int8_value(pump["burst_time"], &pump_burst_time, 1, 10)){
+          Serial.print("pump_burst_time changed to : ");
+          Serial.println(pump_burst_time);
+        }
+
+        if (JSON.typeof(pump["level_control"]) == "boolean"){
+          level_control_on = pump["level_control"];
+          Serial.print("level_control_on changed to : ");
+          Serial.println(level_control_on ? "True" : "False");
+        }
+
+        if (JSON.typeof(pump["level_switch_nf"]) == "boolean"){
+          level_switch_nf = pump["level_switch_nf"];
+          Serial.print("level_switch_nf changed to : ");
+          Serial.println(level_switch_nf ? "True" : "False");
+        }
+
+        if (JSON.typeof(pump["burst"]) == "boolean"){
+          pump_burst_en = pump["burst"];
+          Serial.print("pump_burst_en changed to : ");
+          Serial.println(pump_burst_en ? "True" : "False");
+        }
+      }              
     }
   }
 

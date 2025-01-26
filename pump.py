@@ -6,6 +6,7 @@ class PumpControl(object):
     def __init__(self, ui, model):
         self.enabled = False
         self.power = 0
+        self.old_power = 0
         self.power_high = 0
         self.level_control_enabled = False
         self.ui = ui
@@ -24,8 +25,8 @@ class PumpControl(object):
 
 
     def indexChanged(self, index):
-        self.sensor_nf = True if index == 1 else False
-        self.valueChanged('sensor_nf', self.sensor_nf)      
+        self.sensor_nf = True if index == 0 else False
+        self.valueChanged('level_switch_nf', self.sensor_nf)      
 
 
     def set_burst_time(self, val):
@@ -34,28 +35,41 @@ class PumpControl(object):
     
     def set_burst_enabled(self, val):
         self.burst_enabled = val
-        self.valueChanged('burst_enabled', val)
+        self.valueChanged('burst', val)
 
     def set_enabled(self, val):
         self.enabled = val
-        self.valueChanged('enabled', val)
+        if val:
+            self.power = self.old_power
+        else:
+            self.old_power = self.power
+            self.power = 0
+        self.valueChanged('power', self.power)
+        self.update_component_values()
 
     def set_level_control(self, val):
         self.level_control_enabled = val
-        self.valueChanged('level_control_enabled', val)
+        self.valueChanged('level_control', val)
 
     def set_power(self, val):
         self.power = val
+        self.enabled = (self.power > 0)
         self.valueChanged('power', self.power)
+        self.update_component_values()
+        
 
     def set_power_high(self, val):
         self.power_high = val
-        self.valueChanged('power_high', self.power_high)
+        self.valueChanged('power_level_reached', self.power_high)
 
     def valueChanged(self, pr_name, pr_value):
         if self.model != None and self.row != -1:
             self.model.row_data(self.row)[u'Pump'][pr_name] = pr_value
-            self.model.row_data(self.row)[u'Pump'][u'changed'] = True
+            if self.model.row_data(self.row)[u'Pump'].get(u'changed') is None:
+                self.model.row_data(self.row)[u'Pump'][u'changed'] = []
+            
+            if not pr_name in self.model.row_data(self.row)[u'Pump'][u'changed']:
+              self.model.row_data(self.row)[u'Pump'][u'changed'].append(pr_name)
 
     def set_row(self, row):
         self.row = row
