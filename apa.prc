@@ -2,7 +2,7 @@
   {
     "data": {
       "Pump": {
-        "changed": true, 
+        "changed": [], 
         "power": 0
       }, 
       "PID": {
@@ -46,7 +46,7 @@
   {
     "data": {
       "Pump": {
-        "changed": true, 
+        "changed": [], 
         "enabled": true, 
         "power": 138
       }, 
@@ -84,7 +84,7 @@
   {
     "data": {
       "Pump": {
-        "changed": true, 
+        "changed": [], 
         "enabled": true, 
         "power": 131
       }, 
@@ -113,7 +113,7 @@
   {
     "data": {
       "Pump": {
-        "changed": true, 
+        "changed": [], 
         "power": 0
       }, 
       "PID": {

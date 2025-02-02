@@ -45,15 +45,7 @@ class ProcessController(object):
         self.timer.timeout.connect(self.process)
         self.output = 0
         self.pump_power = 0
-        self.old_pump_power = 0
-        self.pump_power_normal = 0
-        self.pump_power_high = 0
-        self.level_control_enabled = False
-        self.burst_en = False
-        self.sensor_nf = False
         self.f_switch_on = False
-        self.burst_timer = 1
-        self.cur_burst_timer = 0
         self.setpoint = 0
         self.temp = 0
         self.temp2 = 0
@@ -62,6 +54,7 @@ class ProcessController(object):
         self.interval = sampling_interval
         self.pid = PID(0.0, 0.0, 0.0, setpoint=0.0, sample_time=sampling_interval, output_limits=(0, 100), auto_mode=False, proportional_on_measurement=False)
         self.ser = NetworkCom()
+        self.unit_connected = False
         self.status = False
         self.process_start_time = None
         self.stage_start_time = None
@@ -72,10 +65,20 @@ class ProcessController(object):
 
 
     def process(self):
+
+        reconnected = False
+
+        if self.unit_connected and not self.ser.connected:
+            self.unit_connected = False
+
+        if not self.unit_connected and self.ser.connected:
+            self.unit_connected = True
+            reconnected = True
+
                 
         self.ser.heater_power = self.output
         
-        self.ser.pump_power = self.pump_power
+        self.pump_power = self.ser.pump_power
         
         
         if ((self.ser.temp != -127) and (self.ser.temp != 0)):
@@ -96,6 +99,7 @@ class ProcessController(object):
             self.current_stage = next_stage
             self.set_current_stage_status(u'Em execução')
             self.reset_timers(False)
+            self.load_pump_params(False)
             if self.current_stage == -1:
                 self.stop()
                 return
@@ -104,16 +108,10 @@ class ProcessController(object):
 
         #print self.temp
         #if pid parameters has changed, they should affect here
-        if (self.get_pid_control_changed() or state_changed):
+        if (self.get_pid_control_changed() or state_changed or reconnected):
             self.load_pid_params()
 
-        change_list = self.model.row_data(self.current_stage)[u'Pump'].get(u'changed')
-        
-        if change_list:
-            print(change_list)
-            for p in change_list:
-                self.ser.pump_parameters[p] = self.model.row_data(self.current_stage)[u'Pump'].get(p)
-            change_list.clear()
+        self.load_pump_params(load_only_changed=not reconnected)
         
         if self.pid_enabled:
             cur_temp = self.temp if (self.pid_sensor_selected == 0) else self.temp2
@@ -221,7 +219,7 @@ class ProcessController(object):
         powerStr = u'%.0f %%' % (self.output,)
         self.ui.labelOutPower.setText(powerStr)
         self.ui.lbHeaterPower.setText(powerStr)
-        self.ui.lbPumpPower.setText(u'%.0f%%' % (self.pump_power / 255.0 * 100.0,))
+        self.ui.lbPumpPower.setText(u'%.0f%%' % (self.pump_power,))
         tempStr = u'%.2f º' % (self.temp,)
         self.ui.labelTemp.setText(tempStr)
         self.ui.lbTemp.setText(tempStr)
@@ -261,33 +259,6 @@ class ProcessController(object):
         self.pid_sensor_selected = self.model.row_data(self.current_stage)[u'PID'].get('sen_select')
         self.pid_sensor_selected = self.pid_sensor_selected if self.pid_sensor_selected != None else 0
         
-        self.sensor_nf = self.model.row_data(self.current_stage)[u'Pump'].get('sensor_nf')
-        if self.sensor_nf is None: self.sensor_nf = False
-
-        if self.model.row_data(self.current_stage)[u'Pump'].get('enabled'):
-            self.pump_power_normal = self.model.row_data(self.current_stage)[u'Pump'].get('power')
-            if self.pump_power_normal == None: self.pump_power_normal = 0
-            
-            self.pump_power_high = self.model.row_data(self.current_stage)[u'Pump'].get('power_high')
-            print(self.pump_power_high)
-            if self.pump_power_high is None: self.pump_power_high = 0
-
-            self.level_control_enabled = self.model.row_data(self.current_stage)[u'Pump'].get('level_control_enabled')
-            if self.level_control_enabled is None: self.level_control_enabled = False
-
-            self.model.row_data(self.current_stage)[u'Pump'].get('level_control_enabled')
-
-            self.burst_en = self.model.row_data(self.current_stage)[u'Pump'].get('burst_enabled')
-            
-            if self.burst_en:
-                self.burst_timer = self.model.row_data(self.current_stage)[u'Pump'].get('burst_time')
-                if self.burst_timer is None: self.burst_timer = 0
-
-        else:
-            self.pump_power_normal = 0
-            self.pump_power_high = 0
-            self.burst_timer = 0
-            self.cur_burst_timer = 0
         
         setpoint = self.model.row_data(self.current_stage)[u'PID'].get('set_point')
         setpoint = setpoint if setpoint != None else 0.0
@@ -300,12 +271,26 @@ class ProcessController(object):
         self.pid.tunings = (p, i, d)
         self.pid.setpoint = setpoint
         self.pid.auto_mode = self.pid_enabled
+
+    def load_pump_params(self, load_only_changed=True):
+
+        if load_only_changed:
+            change_list = self.model.row_data(self.current_stage)[u'Pump'].get(u'changed')
+        else:
+            change_list = [x for x in self.model.row_data(self.current_stage)[u'Pump'].keys() if x not in ['changed','enabled'] ]
+        
+        if change_list:
+            print(change_list)
+            for p in change_list:
+                self.ser.pump_parameters[p] = self.model.row_data(self.current_stage)[u'Pump'].get(p)
+            change_list.clear()
         
     def start(self):
         if self.timer_state == TimerState.RUNNING:
             return
 
         if self.timer_state == TimerState.STOPPED:
+            self.load_pump_params(False)
             self.load_pid_params()
             self.reset_timers(True)
             self.clear_stage_status()
@@ -358,8 +343,8 @@ class ProcessController(object):
         pass
 
     def action_export_session_data(self):
-        fname = unicode(QFileDialog.getSaveFileName(caption='Exportar dados da Sessão',filter='Arquivo json (*.json)'))[0]
-        if (fname == u''): return
+        fname = QFileDialog.getSaveFileName(caption='Exportar dados da Sessão',filter='Arquivo json (*.json)')[0]
+        if (fname == ''): return
         fname, ext = os.path.splitext(fname)
         if (ext == ''): ext = '.json'
         self.plot_control.export_data(fname + ext)
@@ -371,7 +356,7 @@ if __name__ == "__main__":
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
-    tbmodel_Stages = DictTableModel([u'stage_name',u'stage_status',u'stage_time_elapsed',u'timer_time_elapsed',u'timer_time_remaining'])
+    tbmodel_Stages = DictTableModel([u'stage_name',u'stage_status',u'stage_time_elapsed',u'timer_time_elapsed',u'timer_time_remaining'], defaults={'stage_name':'Novo Estágio'})
     tbmodel_Ingridients = IngridientsDictTableModel([u"ingridient_name", u"ingridient_time_type_addition", u"ingridient_time_addition"])
     pidControl = PIDControl(ui, tbmodel_Stages)
     pumpControl = PumpControl(ui, tbmodel_Stages)

@@ -36,13 +36,17 @@ double temp_sensor2 = 0;
 bool level_sensor_reached = false;  //Indica quando o sensor atingir o limite da panela
 bool level_control_on = false;      //Indica se deve controlar o nivel da panela pela bomba utilizando o sensor de nivel
 bool level_switch_nf = false;       //Indica se o nível é atingido quando o sensor fecha ou abre 
-int pump_power = 0;                      //Potência da bomba 
+int pump_power = 0;                      //Potência da bomba
+int current_pump_power = 0;            //Potência da bomba atual 
 uint8_t pump_power_level_reached = 0;        //Potência da bomba quando o nível é atingido
 bool pump_burst_en = false;           //Potencia maxima na partida ativado
 bool pump_burst = false;              //Potencia maxima acionada quando muda de 0 para qualquer valor > 0
 uint8_t pump_burst_time = 5;          //Tempo em segundos com potência máxima
 uint8_t burst_timer;                  //Timer de usuário para controlar o tempo de potência maxima
-int p_power;                          
+int p_power;
+
+char session_id[9] = "";
+                         
 
 unsigned long last_millis;
 unsigned long current_millis;
@@ -75,12 +79,6 @@ bool set_heater_power(int power){
 
 bool set_pump_power(int power){
   if (((power>=0) && (power<=100)) && (power != pump_power)){
-    //Se eu liguei a bomba e tem burst ativado (potencia maxima na partida)
-    //Dispara o burst
-    if ((pump_power == 0) && (power > 0) && pump_burst_en){
-      timers.startTimer(burst_timer);
-      pump_burst = true;    
-    }
     pump_power = power;    
     return true;
   }
@@ -117,6 +115,7 @@ void respond(METHOD method, char* msg, EthernetClient client){
       
       if ((JSON.typeof(jsonObj["pump"]) == "object")){
         pump = jsonObj["pump"];
+        Serial.println(pump);
 
         if ((JSON.typeof(pump["power"]) == "number") && set_pump_power(pump["power"])){
           Serial.print("Pump power changed to : ");
@@ -129,6 +128,7 @@ void respond(METHOD method, char* msg, EthernetClient client){
         }
 
         if ((JSON.typeof(pump["burst_time"]) == "number") && set_int8_value(pump["burst_time"], &pump_burst_time, 1, 10)){
+          timers.setTime(pump_burst_time * 1000, burst_timer);
           Serial.print("pump_burst_time changed to : ");
           Serial.println(pump_burst_time);
         }
@@ -157,6 +157,7 @@ void respond(METHOD method, char* msg, EthernetClient client){
   jsonResponse["temp1"] = temp_sensor1;
   jsonResponse["temp2"] = temp_sensor2;
   jsonResponse["level"] = level_sensor_reached;
+  jsonResponse["pump_power"] = current_pump_power;
   const char* const response_format_str = "HTTP/1.1 200 OK"
                                           "Content-Type: text/html"
                                           "Content-Length: %d\r\n\r\n%s";
@@ -262,12 +263,20 @@ bool control_pump(){
 
   level_sensor_reached = digitalRead(LEVEL_SENSOR_PIN) ^ level_switch_nf;
 
-  p_power = (level_control_on && level_sensor_reached) ? pump_power_level_reached : pump_power;   
-  
-  if (pump_power > 0){
-    p_power = ((p_power / 100.0) * (255.0 - PUMP_POWER_MIN)) + PUMP_POWER_MIN;
+  int new_pump_power = (level_control_on && level_sensor_reached) ? pump_power_level_reached : pump_power;   
+
+  if ((current_pump_power == 0) && (new_pump_power > 0) && pump_burst_en){
+    Serial.println("Burst Started!");
+    timers.startTimer(burst_timer);
+    pump_burst = true;    
+  }
+
+  current_pump_power = new_pump_power;
+
+  if (current_pump_power > 0){
     //Se tem burst ativado, deve ligar a bomba no maximo
-    if (pump_burst) p_power = 255;      
+    if (pump_burst) current_pump_power = 100;
+    p_power = ((current_pump_power / 100.0) * (255.0 - PUMP_POWER_MIN)) + PUMP_POWER_MIN;       
   }else
     p_power = 0;
 

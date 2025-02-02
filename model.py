@@ -2,12 +2,12 @@ from PyQt5.QtCore import *
 
 
 class DictTableModel(QAbstractTableModel):
-    def __init__(self, fields, parent=None, *args):
+    def __init__(self, fields,defaults={}, parent=None, *args):
         QAbstractTableModel.__init__(self, parent, *args)
         self.fields = fields
+        self.defaults = defaults
         self.header = dict(zip(fields,fields))
-        row = self.newRow()
-        self.rows = [row]
+        self.rows = []
 
 
     def rowCount(self, parent):
@@ -17,11 +17,14 @@ class DictTableModel(QAbstractTableModel):
         pass
         
     
-    def newRow(self):
+    def newRow(self, data):
         row = {}
         for l in self.fields:
-            row[l] = u''
-        return {u'columns':row, u'data': {u'PID': {}, u'Pump': {}, u'ProcessTimer': {}, u'IngridientsData':[]} }
+            if l in self.defaults.keys():
+                row[l] = self.defaults[l]
+            else:
+                row[l] = ''
+        return {u'columns':row, u'data': data }
     
     def columnCount(self, parent):
         return len(self.fields)
@@ -71,9 +74,9 @@ class DictTableModel(QAbstractTableModel):
             self.rows.insert(r,self.newRow())
         self.endInsertRows()
     
-    def add(self):
+    def add(self, data):
         self.beginInsertRows(QModelIndex(), len(self.rows), len(self.rows))
-        self.rows.append(self.newRow())
+        self.rows.append(self.newRow(data))
         self.endInsertRows()
     
     #the data field is not showed in the grid

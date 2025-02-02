@@ -16,12 +16,14 @@ class NetworkCom(object):
 		self.heater_power = 0
 		self.old_heater_power = 0
 		self.pump_parameters = {}
+		self.pump_power = 0
 		self.has_changed = False
 		self.values_to_send = {}
 		self.thread = threading.Thread(target=self.process)
 		self.last_tick = time.perf_counter()
 		self.started = False
 		self.running = False
+		self.connected = False
 	
 	def start(self):
 		print(self.running)
@@ -52,8 +54,12 @@ class NetworkCom(object):
 			if (self.heater_power != self.old_heater_power):
 				self.values_to_send['heater_power'] = self.heater_power
 				self.old_heater_power = self.heater_power
+			
 			try:
-				if len(self.values_to_send.keys()) > 0:		
+				
+				print(self.values_to_send)
+				if len(self.values_to_send.keys()) > 0:
+							
 					req = requests.post(self.addr, json=self.values_to_send, headers={'Accept': 'application/json'}, timeout=2)
 					self.values_to_send = {}
 				else:
@@ -63,12 +69,19 @@ class NetworkCom(object):
 					self.pump_parameters.clear()
 					self.values_to_send.clear()
 					res = req.json()
-					if res.get('temp1'):
+					if res.get('temp1') is not None:
 						self.temp = float(res.get('temp1'))
-					if res.get('temp2'):
+					if res.get('temp2') is not None:
 						self.temp2 = float(res.get('temp2'))
 					if res.get('level') is not None:
 						self.f_switch = bool(res.get('level'))
+					if res.get('pump_power') is not None:
+						self.pump_power = res.get('pump_power')
+
+					self.connected = True
+				else:
+					self.connected = True
+					print("Erro na comunicação: ", req.status_code)
 			except:
-				pass
+				self.connected = False
 

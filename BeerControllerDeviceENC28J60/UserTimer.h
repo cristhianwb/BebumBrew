@@ -27,6 +27,7 @@ class UserTimer {
 
     void startTimer(uint8_t timer_index);
     void stopTimer(uint8_t timer_index);
+    void setTime(int time_millis, uint8_t timer_index);
 
 
   private:

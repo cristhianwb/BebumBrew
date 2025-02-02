@@ -28,8 +28,10 @@ class TableControlStages(object):
         self.ui.tabWidget.setTabEnabled(1, False)
         self.ui.tableView_Stages.resizeColumnsToContents()
 
+
     def bt_add_clicked(self):
-        self.tbmodel_Stages.add()
+        data = {u'PID': self.p_control.get_defaults(), u'Pump': self.pump_control.get_defaults(), u'ProcessTimer': {}, u'IngridientsData':[]}
+        self.tbmodel_Stages.add(data)
     
     def bt_remove_clicked(self):
         selected = self.ui.tableView_Stages.selectedIndexes()

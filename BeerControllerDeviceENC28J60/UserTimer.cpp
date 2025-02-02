@@ -43,6 +43,11 @@ void UserTimer::stopTimer(uint8_t timer_index){
   }
 }
 
+void UserTimer::setTime(int time_millis, uint8_t timer_index){
+  if (time_millis > 0)
+    timerTimes[timer_index] = time_millis;
+}
+
 void UserTimer::update(){
   unsigned long current_millis;
 

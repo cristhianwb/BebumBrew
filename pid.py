@@ -4,15 +4,10 @@ from PyQt5.QtCore import QTime
 
 class PIDControl(object):
     def __init__(self, ui, model):
-        self.p_value = 0.0
-        self.i_value = 0.0
-        self.d_value = 0.0
-        self.set_point = 0.0
-        self.enabled = False
         self.ui = ui
         self.model = model
         self.row = -1
-        self.sen_select = 0
+        self.fromDict(self.get_defaults())
         ui.PField.valueChanged.connect(self.set_p)
         ui.IField.valueChanged.connect(self.set_i)
         ui.DField.valueChanged.connect(self.set_d)
@@ -20,6 +15,9 @@ class PIDControl(object):
         ui.ChkPidEnabled.clicked.connect(self.set_enabled)
         self.ui.sliderOutPower.valueChanged.connect(self.set_out_power)
         ui.cbPidSenSelect.currentIndexChanged.connect(self.set_sen_select)
+
+    def get_defaults(self):
+        return {'p_value': 20.0, 'i_value': 0.0, 'd_value': 0.0, 'set_point': 66.0, 'enabled': False, 'sen_select': 0}
 
     def set_out_power(self, val):
         if not self.enabled:
@@ -51,12 +49,13 @@ class PIDControl(object):
         self.valueChanged('sen_select', index)
 
     def update_component_values(self):
-        self.ui.PField.setValue(self.p_value)
-        self.ui.IField.setValue(self.i_value)
-        self.ui.DField.setValue(self.d_value)
-        self.ui.SPField.setValue(self.set_point)
-        self.ui.ChkPidEnabled.setChecked(self.enabled)
-        self.ui.cbPidSenSelect.setCurrentIndex(self.sen_select)
+        if self.row >= 0:
+            self.ui.PField.setValue(self.p_value)
+            self.ui.IField.setValue(self.i_value)
+            self.ui.DField.setValue(self.d_value)
+            self.ui.SPField.setValue(self.set_point)
+            self.ui.ChkPidEnabled.setChecked(self.enabled)
+            self.ui.cbPidSenSelect.setCurrentIndex(self.sen_select)
 
     def fromDict(self, data):
         self.p_value = data.get('p_value') if data != None and data.get('p_value') != None else 0
