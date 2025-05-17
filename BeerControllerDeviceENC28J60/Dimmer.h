@@ -152,6 +152,7 @@ class Dimmer {
     uint8_t pulsesUsed;
     uint64_t pulsesHigh;
     uint64_t pulsesLow;
+    uint8_t powerTicks;
 
     void zeroCross();
 

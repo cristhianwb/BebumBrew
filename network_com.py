@@ -24,6 +24,7 @@ class NetworkCom(object):
 		self.started = False
 		self.running = False
 		self.connected = False
+		self.time_between_level_switch = 0.0
 	
 	def start(self):
 		print(self.running)
@@ -77,6 +78,8 @@ class NetworkCom(object):
 						self.f_switch = bool(res.get('level'))
 					if res.get('pump_power') is not None:
 						self.pump_power = res.get('pump_power')
+					if res.get('time_between_level_switch') is not None:
+						self.time_between_level_switch = res.get('time_between_level_switch')
 
 					self.connected = True
 				else:

@@ -88,7 +88,7 @@ void callZeroCross() {
 
   // Process each registered dimmer object
   for (uint8_t i = 0; i < dimmerCount; i++) {
-    dimmmers[i]->zeroCross();
+    dimmmers[i]->zeroCross();  
 
     // If triac time was already reached, activate it
     if (tmrCount >= triacTimes[i]) {
@@ -198,7 +198,8 @@ void Dimmer::set(uint8_t value) {
 
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
     if (value != lampValue) {
-      if (operatingMode == DIMMER_RAMP) {
+      powerTicks = pgm_read_byte(&powerToTicks[value - 1]);
+      /*if (operatingMode == DIMMER_RAMP) {
         rampStartValue = getValue();
         rampCounter = 0;
       } else if (operatingMode == DIMMER_COUNT) {
@@ -206,7 +207,7 @@ void Dimmer::set(uint8_t value) {
         pulsesLow = 0;
         pulseCount = 0;
         pulsesUsed = 0;
-      }
+      }*/
       lampValue = value;
     }
   }
@@ -240,7 +241,7 @@ void Dimmer::setRampTime(double rampTime) {
 }
 
 void Dimmer::zeroCross() {
-  if (operatingMode == DIMMER_COUNT) {
+  /*if (operatingMode == DIMMER_COUNT) {
     // Remove MSB from buffer and decrement pulse count accordingly
     if (pulseCount > 0 && (pulsesHigh & (1ULL << 35))) {
       pulsesHigh &= ~(1ULL << 35);
@@ -269,16 +270,16 @@ void Dimmer::zeroCross() {
       pulsesUsed++;
     }
 
-  } else {
+  } else {*/
     // Calculate triac time for the current cycle
-    uint8_t value = getValue();
-    if (value > 0 && lampState) {
-      triacTimes[dimmerIndex] = pgm_read_byte(&powerToTicks[value - 1]);
+    //uint8_t value = getValue();
+    if (lampValue > 0 && lampState) {
+      triacTimes[dimmerIndex] = powerTicks;
     }
 
     // Increment the ramp counter until it reaches the total number of cycles for the ramp
-    if (operatingMode == DIMMER_RAMP && rampCounter < rampCycles) {
+    /*if (operatingMode == DIMMER_RAMP && rampCounter < rampCycles) {
       rampCounter++;
     }
-  }
+  }*/
 }

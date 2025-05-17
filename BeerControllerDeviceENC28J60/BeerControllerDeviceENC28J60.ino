@@ -43,13 +43,10 @@ bool pump_burst_en = false;           //Potencia maxima na partida ativado
 bool pump_burst = false;              //Potencia maxima acionada quando muda de 0 para qualquer valor > 0
 uint8_t pump_burst_time = 5;          //Tempo em segundos com potência máxima
 uint8_t burst_timer;                  //Timer de usuário para controlar o tempo de potência maxima
-int p_power;
+int p_power;                         
+float time_between_level_switch = 0;      //Tempo entre mudança do nivel da panela (utiizado para calcular a vazão)
+unsigned long last_millis_level_sensor = 0;
 
-char session_id[9] = "";
-                         
-
-unsigned long last_millis;
-unsigned long current_millis;
 const unsigned long sampling_interval = 1000;
 
 bool sensor1_read = false;
@@ -61,6 +58,9 @@ int read_attempts_counter_sen2 = READ_ATTEMPTS;
 //Sensor temperatura
 OneWire oneWire(ONE_WIRE_BUS_PIN);
 DallasTemperature sensors(&oneWire);
+DeviceAddress addr_sen1, addr_sen2;
+
+
 //Dimmer (ZC Pin 2)
 Dimmer heater(HEATER_TRIAC_PIN);
 //Servidor
@@ -158,6 +158,8 @@ void respond(METHOD method, char* msg, EthernetClient client){
   jsonResponse["temp2"] = temp_sensor2;
   jsonResponse["level"] = level_sensor_reached;
   jsonResponse["pump_power"] = current_pump_power;
+  jsonResponse["time_between_level_switch"] = time_between_level_switch;
+
   const char* const response_format_str = "HTTP/1.1 200 OK"
                                           "Content-Type: text/html"
                                           "Content-Length: %d\r\n\r\n%s";
@@ -208,8 +210,8 @@ bool read_sensors(){
   double temp_sens1 = 0;
   double temp_sens2 = 0;
 
-  temp_sens1 =  sensors.getTempCByIndex(0);
-  temp_sens2 = sensors.getTempCByIndex(1);
+  temp_sens1 =  sensors.getTempC(addr_sen1);
+  temp_sens2 = sensors.getTempC(addr_sen2);
   
   // Serial.print("Read attempts Sen1: ");
   // Serial.println(read_attempts_counter_sen1);
@@ -260,8 +262,16 @@ bool finish_pump_burst(){
 
 bool control_pump(){
   
+  bool new_level = digitalRead(LEVEL_SENSOR_PIN) ^ level_switch_nf;
+  
+  //Cronometrar a mudança de nivel do sensor para calcular a vazão
+  if (new_level != level_sensor_reached){
+    unsigned long current_millis = millis();
+    time_between_level_switch = (float) (current_millis - last_millis_level_sensor) / 1000.0;
+    last_millis_level_sensor = current_millis;    
+  }
 
-  level_sensor_reached = digitalRead(LEVEL_SENSOR_PIN) ^ level_switch_nf;
+  level_sensor_reached = new_level;
 
   int new_pump_power = (level_control_on && level_sensor_reached) ? pump_power_level_reached : pump_power;   
 
@@ -303,6 +313,11 @@ void setup() {
 
   sensors.setWaitForConversion(false);
   sensors.begin();
+
+  sensors.getAddress(addr_sen1, 0);
+  sensors.getAddress(addr_sen2, 1);
+
+
   sensors.requestTemperatures();
 
   heater.begin();
