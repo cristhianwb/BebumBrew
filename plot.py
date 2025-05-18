@@ -3,18 +3,17 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-#from matplotlib.backends.qt_compat import QtCore, QtWidgets
-#from matplotlib.backends.backend_qt5agg import (
-#        FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
-#import matplotlib.pyplot as plt
-#from matplotlib.animation import FuncAnimation
 from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
 
 import random
 import io
 import json
+import datetime
 
+class TimeAxisItem(pg.AxisItem):
+    def tickStrings(self, values, scale, spacing):
+        return [str(datetime.timedelta(seconds=value)) for value in values]
 
 def rgb_from_qcolor(color):
     return color.red(), color.green(), color.blue()
@@ -23,13 +22,13 @@ class PlotControl(object):
     def __init__(self, ui):        
         #data that will be plotted
         self.data = {
-            'sensor1': [],
-            'sensor2': [],
-            'heater_power': [],
-            'pump_power': [],
-            'setpoint': [],
+            'sensor1': [0],
+            'sensor2': [0],
+            'heater_power': [0],
+            'pump_power': [0],
+            'setpoint': [0],
             'marks': [],
-            'sample_count': 0
+            'sample_count': 1
         }
 
         #minimun window size
@@ -46,28 +45,21 @@ class PlotControl(object):
         self.window_count = 1
         #ui treatments
         self.ui = ui
-        self.graphWidget = pg.PlotWidget()
+        time_axis = TimeAxisItem(orientation='bottom')
+        self.graphWidget = pg.PlotWidget(axisItems = {'bottom': time_axis})
         layout = ui.tabPlotLay
         layout.addWidget(self.graphWidget)
 
         self.graphWidget.setBackground('w')
 
-        
-        self.graphWidget.setTitle("Mosturação", color="b", size="28pt")
         # Add Axis Labels
         styles = {"color": "#f00", "font-size": "20px"}
-        self.graphWidget.setLabel("left", "Temperature (°C)", **styles)
-        self.graphWidget.setLabel("bottom", "Hour (H)", **styles)
+        self.graphWidget.setLabel("left", "Temperatura (°C)", **styles)
+        self.graphWidget.setLabel("bottom", "Tempo (hh:mm:ss)", **styles)
         #Add legend
         self.graphWidget.addLegend()
         #Add grid
-        self.graphWidget.showGrid(x=True, y=True)
-        #Set Range
-        #self.graphWidget.setXRange(0, 10, padding=0)
-        #self.graphWidget.setYRange(20, 55, padding=0)
-
-        #pen = pg.mkPen(color=(255, 0, 0))
-        #self.data_line =  self.graphWidget.plot(self.x, self.y, pen=pen)
+        #self.graphWidget.showGrid(x=True, y=True)
         self.make_lines()
 
                
@@ -202,12 +194,14 @@ class PlotControl(object):
 
     def add_mark(self, text):
         self.graphWidget.setTitle(text, color="b", size="28pt")
-        # mark_position = self.data['sample_count']# - 1 if (self.data['sample_count'] > 0) else 0
-        # mark = (mark_position, text)
-        # self.data['marks'].append(mark)
-        # self.ax.axvline(mark_position, color ="black", alpha = 0.8, lw = 1.5)
-        # plt.text(mark_position, 30, text, rotation=90)
-        # print(self.data['marks'])
+        vertical_line = pg.InfiniteLine(angle=90, movable=False,pen=pg.mkPen(color=QColor('black'), width=2))
+        position = self.data['sample_count']-1
+        vertical_line.setPos(position)
+        self.graphWidget.addItem(vertical_line)
+        stage_text = pg.TextItem(text, angle=90,color=QColor('orange'))
+        stage_text.setPos(vertical_line.getPos()[0],vertical_line.getPos()[1])
+        self.graphWidget.addItem(stage_text)
+        
 
 
 
@@ -222,6 +216,3 @@ class PlotControl(object):
         f = io.open(file_name, "w", encoding="utf-8")
         f.write(json.dumps(self.data, ensure_ascii=False, indent=2))
         f.close()
-
-
-    

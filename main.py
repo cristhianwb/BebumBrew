@@ -373,7 +373,8 @@ if __name__ == "__main__":
         
     res = app.exec_()
     processController.ser.exit()
-    processController.ser.thread.join()
+    if processController.ser.running: 
+        processController.ser.thread.join()
     print("exiting")
     sys.exit(res)
 
