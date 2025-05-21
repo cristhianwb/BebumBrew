@@ -24,9 +24,10 @@ class TableControlStages(object):
         self.ui.btRemove.clicked.connect(self.bt_remove_clicked)
         self.ui.btSave.clicked.connect(self.bt_save_clicked)
         self.ui.btLoad.clicked.connect(self.bt_load_clicked)
-        self.ui.tabWidget.setTabText(1, u'Selecione uma Etapa...')
-        self.ui.tabWidget.setTabEnabled(1, False)
+        #self.ui.tabWidget.setTabText(1, u'Selecione uma Etapa...')
+        #self.ui.tabWidget.setTabEnabled(1, False)
         self.ui.tableView_Stages.resizeColumnsToContents()
+        self.processController = None
 
 
     def bt_add_clicked(self):
@@ -72,21 +73,35 @@ class TableControlStages(object):
     def set_IngridientsControl(self, ingrid_control):
         self.ingrid_control = ingrid_control
 
+    def set_ProcessController(self, processController):
+        self.processController = processController
+
+    def setPagesTitles(self, stage):
+        self.ui.toolBox.setItemText(self.ui.toolBox.indexOf(self.ui.pagePower), 'Potência (Etapa {} - {})'.format(stage+1, self.tbmodel_Stages.get_field(stage, 'stage_name')))
+        self.ui.toolBox.setItemText(self.ui.toolBox.indexOf(self.ui.pagePump), 'Bomba de recirculação (Etapa {} - {}) '.format(stage+1, self.tbmodel_Stages.get_field(stage, 'stage_name')))
+        self.ui.toolBox.setItemText(self.ui.toolBox.indexOf(self.ui.pageTimer), 'Temporizador de Etapa (Etapa {} - {}) '.format(stage+1, self.tbmodel_Stages.get_field(stage, 'stage_name')))
+
+
     def selectionChanged(self, selected, deselected):
         selected = selected.indexes()
         selected = selected[0].row() if len(selected) >= 1 else -1
         deselected = deselected.indexes()
         deselected = deselected[0].row() if len(deselected) >= 1 else -1
-        self.p_control.set_row(selected)
-        self.pump_control.set_row(selected)
-        self.timer_control.set_row(selected)
 
-        if selected != -1:    
-            self.ui.tabWidget.setTabText(1, u'Etapa %d - ' % (selected+1,) + self.tbmodel_Stages.get_field(selected, u'stage_name'))
-            self.ui.tabWidget.setTabEnabled(1, True)
+
+        if selected != -1:                        
+
             if self.tbmodel_Stages.row_data(selected).get(u'IngridientsData') is None:
                 self.tbmodel_Stages.row_data(selected)[u'IngridientsData'] = []
             self.ingrid_control.model.load(self.tbmodel_Stages.row_data(selected)[u'IngridientsData'])
+            self.p_control.set_row(selected)
+            self.pump_control.set_row(selected)
+            self.timer_control.set_row(selected)
+            stage = selected
         else:
-            self.ui.tabWidget.setTabText(1, u'Selecione uma Etapa...')
-            self.ui.tabWidget.setTabEnabled(1, False)
+            self.p_control.set_row(self.processController.current_stage)
+            self.pump_control.set_row(self.processController.current_stage)
+            self.timer_control.set_row(self.processController.current_stage)
+            stage = self.processController.current_stage
+        
+        self.setPagesTitles(stage)

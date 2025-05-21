@@ -29,7 +29,7 @@ class TimerState():
 
 
 class ProcessController(object):
-    def __init__(self, ui, model, sampling_interval=1.0):
+    def __init__(self, ui, model, tableControlStages, sampling_interval=1.0):
         self.ui = ui
         self.ui.btStart.clicked.connect(self.start)
         self.ui.btStop.clicked.connect(self.stop)
@@ -62,6 +62,7 @@ class ProcessController(object):
         self.timer_started = False
         self.plot_control = PlotControl(ui)
         self.IngridTimer = IngridentsTimer(self)
+        self.tableControlStages = tableControlStages
 
 
     def process(self):
@@ -211,6 +212,7 @@ class ProcessController(object):
         self.ui.lbStage.setText(self.model.get_field(self.current_stage, u'stage_name'))
         self.ui.lbNextStage.setText(self.model.get_field(self.current_stage+1, u'stage_name') if (self.current_stage+1 < self.model.count()) and (self.current_stage >= 0) else u'Fim do processo' )
         self.plot_control.add_mark(self.model.get_field(self.current_stage, u'stage_name'))
+        self.tableControlStages.setPagesTitles(self.current_stage)
 
 
     def update_outputs_to_ui(self):
@@ -366,7 +368,8 @@ if __name__ == "__main__":
     tableControlStages.set_TimerControl(TimerControl(ui, tbmodel_Stages))
     tableControlIngridients = TableControlIngridients(ui, tbmodel_Ingridients)
     tableControlStages.set_IngridientsControl(tableControlIngridients)
-    processController = ProcessController(ui, tbmodel_Stages)
+    processController = ProcessController(ui, tbmodel_Stages, tableControlStages)
+    tableControlStages.set_ProcessController(processController)
     #MainWindow.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
     #MainWindow.setWindowState(QtCore.Qt.WindowMaximized) 
     MainWindow.show()

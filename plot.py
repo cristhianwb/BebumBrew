@@ -59,7 +59,7 @@ class PlotControl(object):
         #Add legend
         self.graphWidget.addLegend()
         #Add grid
-        #self.graphWidget.showGrid(x=True, y=True)
+        self.graphWidget.showGrid(x=True, y=True)
         self.make_lines()
 
                
