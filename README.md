@@ -1,6 +1,6 @@
 <h1 align="left">Bebum Brew</h1>
 
-!printscreen.png
+![Captura da tela do software](printscreen.png)!
 
 ###
 
