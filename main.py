@@ -38,6 +38,7 @@ class ProcessController(object):
         self.ui.btNext.clicked.connect(self.goto_next_stage)
         self.ui.tabWidget.currentChanged.connect(self.tabChanged)
         self.ui.actionExportar_Dados.triggered.connect(self.action_export_session_data)
+        self.ui.actionImportar_Dados.triggered.connect(self.action_import_session_data)
         self.timer = QTimer()
         self.timer_state = TimerState.STOPPED        
         self.current_stage = 0
@@ -350,6 +351,13 @@ class ProcessController(object):
         fname, ext = os.path.splitext(fname)
         if (ext == ''): ext = '.json'
         self.plot_control.export_data(fname + ext)
+    
+    def action_import_session_data(self):
+        fname = QFileDialog.getOpenFileName(caption='Importar dados da Sessão',filter='Arquivo json (*.json)')[0]
+        if (fname == ''): return
+        fname, ext = os.path.splitext(fname)
+        if (ext == ''): ext = '.json'
+        self.plot_control.import_data(fname + ext)
 
 
 if __name__ == "__main__":
@@ -371,7 +379,7 @@ if __name__ == "__main__":
     processController = ProcessController(ui, tbmodel_Stages, tableControlStages)
     tableControlStages.set_ProcessController(processController)
     #MainWindow.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
-    #MainWindow.setWindowState(QtCore.Qt.WindowMaximized) 
+    MainWindow.setWindowState(QtCore.Qt.WindowMaximized) 
     MainWindow.show()
         
     res = app.exec_()

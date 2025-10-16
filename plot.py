@@ -154,20 +154,21 @@ class PlotControl(object):
         return rgb_from_qcolor(QColor(xcolor))
 
 
-    def plot(self, temp1, temp2, power, p_power, xsetpoint):
+    def plot(self, temp1=0, temp2=0, power=0, p_power=0, xsetpoint=0, add_values=True):
         sample_count = self.data['sample_count']
         sensor1 = self.data['sensor1']
         sensor2 = self.data['sensor2']
         setpoint = self.data['setpoint']
         heater_power = self.data['heater_power']
         pump_power = self.data['pump_power']
-        sensor1.append(temp1)
-        sensor2.append(temp2)        
-        heater_power.append(power)        
-        pump_power.append(int(float(p_power) / 255.0 * 100))
-        setpoint.append(xsetpoint)
-        sample_count += 1
-        self.data['sample_count'] = sample_count
+        if add_values:
+            sensor1.append(temp1)
+            sensor2.append(temp2)        
+            heater_power.append(power)        
+            pump_power.append(int(float(p_power) / 255.0 * 100))
+            setpoint.append(xsetpoint)
+            sample_count += 1
+            self.data['sample_count'] = sample_count
              
         count = sample_count
         if self.ui.chkAdjToScreen.isChecked():
@@ -216,3 +217,9 @@ class PlotControl(object):
         f = io.open(file_name, "w", encoding="utf-8")
         f.write(json.dumps(self.data, ensure_ascii=False, indent=2))
         f.close()
+
+    def import_data(self, file_name):
+        f = io.open(file_name, "r", encoding="utf-8")
+        self.data = json.load(f)
+        f.close()
+        self.plot(add_values=False)

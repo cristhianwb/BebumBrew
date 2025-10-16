@@ -24,7 +24,7 @@
 //#define DIMMER_ZERO_CROSS_PIN       2 (Defined in Dimmer.h)
 
 #define READ_ATTEMPTS 15
-#define PUMP_POWER_MIN  64
+#define PUMP_POWER_MIN  5
 
 typedef enum {GET, POST} METHOD;
 
@@ -291,7 +291,7 @@ bool control_pump(){
     p_power = 0;
 
   
-  analogWrite(PUMP_MOSFET_PIN, p_power);
+  analogWrite(PUMP_MOSFET_PIN, 255-p_power);
   return true;  
 }
 
@@ -304,6 +304,7 @@ void setup() {
   uint8_t myGW[4] = {MYGW};
   
   pinMode(PUMP_MOSFET_PIN, OUTPUT);
+  analogWrite(PUMP_MOSFET_PIN, 255);
   pinMode(LEVEL_SENSOR_PIN, INPUT_PULLUP);
   #ifdef IND_LED_PIN
   pinMode(IND_LED_PIN, OUTPUT);

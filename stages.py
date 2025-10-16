@@ -81,7 +81,6 @@ class TableControlStages(object):
         self.ui.toolBox.setItemText(self.ui.toolBox.indexOf(self.ui.pagePump), 'Bomba de recirculação (Etapa {} - {}) '.format(stage+1, self.tbmodel_Stages.get_field(stage, 'stage_name')))
         self.ui.toolBox.setItemText(self.ui.toolBox.indexOf(self.ui.pageTimer), 'Temporizador de Etapa (Etapa {} - {}) '.format(stage+1, self.tbmodel_Stages.get_field(stage, 'stage_name')))
 
-
     def selectionChanged(self, selected, deselected):
         selected = selected.indexes()
         selected = selected[0].row() if len(selected) >= 1 else -1
@@ -105,3 +104,5 @@ class TableControlStages(object):
             stage = self.processController.current_stage
         
         self.setPagesTitles(stage)
+
+
