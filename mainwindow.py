@@ -806,7 +806,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Beer Controller"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Bebum Brew"))
         self.btAdd.setText(_translate("MainWindow", "Adicionar"))
         self.btRemove.setText(_translate("MainWindow", "..."))
         self.btStop.setText(_translate("MainWindow", "..."))
