@@ -1,4 +1,4 @@
-<h1 align="left">Bebum Process Controller</h1>
+<h1 align="left">Bebum Brew</h1>
 
 ###
 
